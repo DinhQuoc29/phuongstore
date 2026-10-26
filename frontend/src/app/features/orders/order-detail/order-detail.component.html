@@ -344,10 +344,83 @@
           <span class="summary-label">Tổng tiền hàng ({{ editableItems().length }} sản phẩm)</span>
           <span class="summary-val">{{ formatCurrency(totalAmount()) }}</span>
         </div>
-        <div class="summary-row">
-          <span class="summary-label">Đã đặt cọc</span>
-          <span class="summary-val summary-val--deposit">− {{ formatCurrency(depositAmount()) }}</span>
-        </div>
+        @if (!editingDeposit()) {
+          <div class="summary-row summary-row--deposit">
+            <span class="summary-label">Đã đặt cọc</span>
+            <div class="deposit-val-group">
+              <span class="summary-val summary-val--deposit">− {{ formatCurrency(depositAmount()) }}</span>
+              <button
+                type="button"
+                class="deposit-edit-trigger"
+                (click)="startEditDeposit()"
+                title="Chỉnh sửa tiền đặt cọc"
+                [disabled]="updatingDeposit()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                <span>Sửa</span>
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="deposit-edit-card">
+            <div class="deposit-edit-header">
+              <span class="deposit-edit-title">Chỉnh sửa tiền đặt cọc</span>
+              <span class="deposit-edit-max">Tối đa: {{ formatCurrency(totalAmount()) }}</span>
+            </div>
+
+            <div class="deposit-input-row">
+              <div class="deposit-input-wrapper">
+                <input
+                  type="number"
+                  class="field-input deposit-input"
+                  [class.field-input--error]="depositError()"
+                  min="0"
+                  [max]="totalAmount()"
+                  placeholder="0"
+                  [ngModel]="editDepositValue()"
+                  (ngModelChange)="onDepositInputChange($event)"
+                  (keydown.enter)="saveDeposit()"
+                  (keydown.escape)="cancelEditDeposit()"
+                  autofocus
+                />
+                <span class="deposit-currency-tag">₫</span>
+              </div>
+
+              <div class="deposit-actions">
+                <button
+                  type="button"
+                  class="btn btn--ghost btn--sm"
+                  (click)="cancelEditDeposit()"
+                  [disabled]="updatingDeposit()">
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  class="btn btn--primary btn--sm"
+                  (click)="saveDeposit()"
+                  [disabled]="updatingDeposit() || !!depositError()">
+                  @if (updatingDeposit()) { <span class="spinner spinner--xs"></span> }
+                  Lưu
+                </button>
+              </div>
+            </div>
+
+            <div class="deposit-presets">
+              <span class="preset-label">Gợi ý:</span>
+              <button type="button" class="preset-pill" (click)="setDepositPreset(0)" [class.preset-pill--active]="editDepositValue() === 0">0₫</button>
+              @if (totalAmount() > 0) {
+                <button type="button" class="preset-pill" (click)="setDepositPreset(Math.round(totalAmount() * 0.5))" [class.preset-pill--active]="editDepositValue() === Math.round(totalAmount() * 0.5)">50% ({{ formatCurrency(Math.round(totalAmount() * 0.5)) }})</button>
+                <button type="button" class="preset-pill" (click)="setDepositPreset(totalAmount())" [class.preset-pill--active]="editDepositValue() === totalAmount()">100% (Đủ)</button>
+              }
+            </div>
+
+            @if (depositError()) {
+              <span class="field-error deposit-error-msg">{{ depositError() }}</span>
+            }
+          </div>
+        }
         <div class="summary-divider"></div>
         <div class="summary-row summary-row--big">
           <span class="summary-label--big">Còn lại phải trả</span>

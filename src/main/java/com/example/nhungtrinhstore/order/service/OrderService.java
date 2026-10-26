@@ -120,14 +120,29 @@ public class OrderService {
 
         if (request.depositAmount().compareTo(order.getTotalAmount()) > 0) {
             throw new BusinessException(
-                "Tiá»n Ä‘áº·t cá»c (%sâ‚«) khĂ´ng Ä‘Æ°á»£c lá»›n hÆ¡n tá»•ng tiá»n Ä‘Æ¡n hĂ ng (%sâ‚«)"
+                "Tiền đặt cọc (%s₫) không được lớn hơn tổng tiền đơn hàng (%s₫)"
                     .formatted(request.depositAmount().toPlainString(),
                                order.getTotalAmount().toPlainString())
             );
         }
 
         order.setDepositAmount(request.depositAmount());
-        recalculateOrderFinancials(order);
+
+        BigDecimal total = order.getItems().stream()
+            .map(OrderItem::getLineTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        order.setTotalAmount(total);
+
+        BigDecimal deposit = request.depositAmount();
+        BigDecimal remaining = total.subtract(deposit).max(BigDecimal.ZERO);
+
+        if (total.compareTo(BigDecimal.ZERO) > 0 && deposit.compareTo(total) >= 0) {
+            order.setPaymentStatus(PaymentStatus.PAID);
+            order.setRemainingAmount(BigDecimal.ZERO);
+        } else {
+            order.setPaymentStatus(PaymentStatus.UNPAID);
+            order.setRemainingAmount(remaining);
+        }
         orderRepository.save(order);
 
         return orderMapper.toResponse(

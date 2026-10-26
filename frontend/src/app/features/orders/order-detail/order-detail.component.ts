@@ -66,6 +66,12 @@ export class OrderDetailComponent implements OnInit {
   // Payment status
   updatingPayment = signal(false);
 
+  // Deposit editing
+  editingDeposit = signal(false);
+  editDepositValue = signal(0);
+  updatingDeposit = signal(false);
+  depositError = signal<string | null>(null);
+
   // Add item form
   showAddItem    = signal(false);
   addProductSearch  = signal('');
@@ -270,6 +276,69 @@ export class OrderDetailComponent implements OnInit {
         this.toast.success('Đã cập nhật trạng thái thanh toán!');
       },
       error: () => this.updatingPayment.set(false)
+    });
+  }
+
+  // ── Deposit editing ──────────────────────────────────────────
+
+  startEditDeposit() {
+    this.editDepositValue.set(this.depositAmount());
+    this.depositError.set(null);
+    this.editingDeposit.set(true);
+  }
+
+  cancelEditDeposit() {
+    this.editingDeposit.set(false);
+    this.depositError.set(null);
+  }
+
+  setDepositPreset(amount: number) {
+    this.editDepositValue.set(amount);
+    this.validateDeposit(amount);
+  }
+
+  onDepositInputChange(val: any) {
+    const num = val === '' || val === null || val === undefined ? 0 : +val;
+    this.editDepositValue.set(num);
+    this.validateDeposit(num);
+  }
+
+  validateDeposit(val: number): boolean {
+    if (val < 0) {
+      this.depositError.set('Tiền đặt cọc không được âm');
+      return false;
+    }
+    if (val > this.totalAmount()) {
+      this.depositError.set(`Tiền đặt cọc không được lớn hơn tổng tiền (${this.formatCurrency(this.totalAmount())})`);
+      return false;
+    }
+    this.depositError.set(null);
+    return true;
+  }
+
+  saveDeposit() {
+    const val = this.editDepositValue();
+    if (!this.validateDeposit(val)) return;
+
+    if (val === this.depositAmount()) {
+      this.editingDeposit.set(false);
+      return;
+    }
+
+    this.updatingDeposit.set(true);
+    this.orderService.updateDeposit(+this.id(), { depositAmount: val }).subscribe({
+      next: updatedOrder => {
+        this.syncFromOrder(updatedOrder);
+        this.editingDeposit.set(false);
+        this.updatingDeposit.set(false);
+        this.toast.success('Đã cập nhật tiền đặt cọc!');
+      },
+      error: err => {
+        const msg = err?.error?.message || 'Không thể cập nhật tiền đặt cọc';
+        this.depositError.set(msg);
+        this.toast.error(msg);
+        this.updatingDeposit.set(false);
+      }
     });
   }
 

@@ -556,6 +556,159 @@
 .summary-label { font-size: 14px; color: var(--color-text-muted); }
 .summary-val   { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
 .summary-val--deposit { color: var(--amber-700); }
+
+/* ── Deposit edit styles ─────────────────────────────────── */
+.deposit-val-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deposit-edit-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--blue-600);
+  background: #fff;
+  border: 1px solid var(--blue-200, #bfdbfe);
+  border-radius: var(--radius-md);
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.deposit-edit-trigger:hover {
+  background: var(--blue-50);
+  border-color: var(--blue-600);
+}
+.deposit-edit-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.deposit-edit-card {
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--blue-200, #bfdbfe);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  margin: 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeSlideDown 0.12s ease;
+}
+
+.deposit-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deposit-edit-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue-700, #1d4ed8);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.deposit-edit-max {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.deposit-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deposit-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.deposit-input {
+  padding-right: 28px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  height: 34px;
+  box-sizing: border-box;
+}
+
+.deposit-currency-tag {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.deposit-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn--sm {
+  padding: 5px 12px;
+  font-size: 12px;
+  height: 34px;
+}
+
+.deposit-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.preset-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.preset-pill {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: inherit;
+}
+.preset-pill:hover {
+  border-color: var(--blue-600);
+  color: var(--blue-600);
+  background: var(--blue-50);
+}
+.preset-pill--active {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+  color: #fff;
+}
+
+.field-input--error {
+  border-color: var(--red-600, #dc2626) !important;
+  background: #fff5f5 !important;
+}
+
+.deposit-error-msg {
+  color: var(--red-600, #dc2626);
+  font-size: 12px;
+  font-weight: 500;
+}
 .summary-divider { height: 1px; background: var(--color-border); margin: var(--space-2) 0; }
 .summary-row--big { padding-top: var(--space-3); }
 .summary-label--big { font-size: 15px; font-weight: 700; color: var(--color-text-primary); }
