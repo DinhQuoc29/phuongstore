@@ -1,4 +1,4 @@
-<div class="page-container page-container--customers">
+﻿<div class="page-container page-container--customers">
 
   <!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
   <div class="page-header">
@@ -13,7 +13,7 @@
 
   <!-- ═══════════════════════════════════ SEARCH ═══════════════════════════════════ -->
   <div class="search-bar">
-    <span class="search-bar__icon">🔍</span>
+    <i class="fa-solid fa-magnifying-glass search-bar__icon"></i>
     <input id="customer-search" type="text" class="search-bar__input" placeholder="Tìm theo tên, số điện thoại..."
       [ngModel]="keyword()" (ngModelChange)="onSearch($event)" />
   </div>
@@ -57,7 +57,7 @@
             <td colspan="6" class="empty-cell">
               <div class="empty-state">
                 <div class="empty-state__icon">
-                  <img src="/icons/customer.png" alt="Khách hàng" class="empty-state__img" />
+                  <i class="fa-solid fa-users" style="font-size: 40px; color: #9ca3af;"></i>
                 </div>
                 <p class="empty-state__title">Chưa có khách hàng</p>
                 <p class="empty-state__desc">Thêm khách hàng đầu tiên để bắt đầu</p>
@@ -112,13 +112,13 @@
             <td class="col-action">
               <div class="action-group">
                 <button class="btn-orders" (click)="openOrdersModal(c)" title="Xem đơn hàng">
-                  <img src="/icons/eye.png" alt="Xem đơn hàng" class="action-icon-img" />
+                  <i class="fa-regular fa-eye" style="font-size: 14px; color: #4b5563;"></i>
                 </button>
                 <button class="btn btn--icon" (click)="openEdit(c)" title="Chỉnh sửa">
-                  <img src="/icons/edit.png" alt="Chỉnh sửa" class="action-icon-img" />
+                  <i class="fa-solid fa-pen-to-square" style="font-size: 14px; color: #2563eb;"></i>
                 </button>
                 <button class="btn btn--icon btn--icon-danger" (click)="confirmDelete(c.id)" title="Xóa">
-                  <img src="/icons/bin.png" alt="Xóa" class="action-icon-img" />
+                  <i class="fa-regular fa-trash-can" style="font-size: 14px; color: #dc2626;"></i>
                 </button>
               </div>
             </td>

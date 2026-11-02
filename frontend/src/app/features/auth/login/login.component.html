@@ -2,7 +2,7 @@
   <div class="login-card">
     <div class="login-header">
       <div class="login-logo-badge">
-        <span class="login-logo">🛍️</span>
+        <i class="fa-solid fa-bag-shopping login-logo"></i>
       </div>
       <h1 class="login-title">Phương Store</h1>
       <p class="login-subtitle">Hệ thống Quản lý Đơn hàng</p>
@@ -10,7 +10,7 @@
 
     @if (errorMessage) {
       <div class="login-error-alert" role="alert">
-        <span class="login-error-icon">⚠️</span>
+        <i class="fa-solid fa-triangle-exclamation login-error-icon"></i>
         <span class="login-error-text">{{ errorMessage }}</span>
       </div>
     }
@@ -19,7 +19,7 @@
       <div class="form-group">
         <label for="username" class="form-label">Tên đăng nhập</label>
         <div class="input-wrapper">
-          <span class="input-icon">👤</span>
+          <i class="fa-solid fa-user input-icon"></i>
           <input
             id="username"
             name="username"
@@ -38,7 +38,7 @@
       <div class="form-group">
         <label for="password" class="form-label">Mật khẩu</label>
         <div class="input-wrapper">
-          <span class="input-icon">🔒</span>
+          <i class="fa-solid fa-lock input-icon"></i>
           <input
             id="password"
             name="password"
@@ -75,10 +75,10 @@
           <span class="spinner"></span>
           <span>Đang xác thực...</span>
         } @else {
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
           <span>Đăng nhập hệ thống</span>
         }
       </button>
     </form>
   </div>
 </div>
-

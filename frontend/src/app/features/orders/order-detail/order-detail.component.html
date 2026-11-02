@@ -2,24 +2,12 @@
 
   <!-- Header -->
   <div class="order-header">
-    <a routerLink="/orders" class="back-btn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      Quay lại
-    </a>
+    <a routerLink="/orders" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
     @if (order()) {
       <h1 class="order-title">Đơn hàng #{{ order()!.id }}</h1>
       <div class="header-actions">
-        <button class="btn-invoice-detail" (click)="exportInvoice()" title="Xuất hóa đơn ảnh">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-            <polyline points="10 9 9 9 8 9"/>
-          </svg>
-          Xuất hóa đơn
-        </button>
-        <button class="btn-delete" (click)="showDeleteDialog.set(true)">Xóa đơn</button>
+        <button class="btn-invoice-detail" (click)="exportInvoice()" title="Xuất hóa đơn ảnh"><i class="fa-solid fa-file-invoice"></i> Xuất hóa đơn</button>
+        <button class="btn-delete" (click)="showDeleteDialog.set(true)"><i class="fa-regular fa-trash-can"></i> Xóa đơn</button>
       </div>
     } @else {
       <h1 class="order-title">Chi tiết đơn hàng</h1>

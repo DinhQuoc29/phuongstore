@@ -1,38 +1,32 @@
 @if (authService.isAuthenticated()) {
   <nav class="navbar">
     <div class="navbar__brand">
-      <span class="navbar__logo">🛍️</span>
+      <span class="navbar__logo"><i class="fa-solid fa-bag-shopping"></i></span>
       <span class="navbar__name">Phương Store</span>
     </div>
 
     <div class="navbar__links">
       <a routerLink="/pickup" routerLinkActive="navbar__link--active" class="navbar__link" title="Gom hàng">
-        <span class="navbar__link-icon">📦</span>
+        <span class="navbar__link-icon"><i class="fa-solid fa-boxes-packing"></i></span>
         <span class="navbar__link-label">Gom hàng</span>
       </a>
       <a routerLink="/orders" routerLinkActive="navbar__link--active" class="navbar__link" title="Đơn hàng">
-        <span class="navbar__link-icon">
-          <img src="/icons/order.png" alt="Đơn hàng" class="navbar__link-img" />
-        </span>
+        <span class="navbar__link-icon"><i class="fa-solid fa-receipt"></i></span>
         <span class="navbar__link-label">Đơn hàng</span>
       </a>
       <a routerLink="/customers" routerLinkActive="navbar__link--active" class="navbar__link" title="Khách hàng">
-        <span class="navbar__link-icon">
-          <img src="/icons/customer.png" alt="Khách hàng" class="navbar__link-img" />
-        </span>
+        <span class="navbar__link-icon"><i class="fa-solid fa-users"></i></span>
         <span class="navbar__link-label">Khách hàng</span>
       </a>
       <a routerLink="/products" routerLinkActive="navbar__link--active" class="navbar__link" title="Sản phẩm">
-        <span class="navbar__link-icon">
-          <img src="/icons/product.png" alt="Sản phẩm" class="navbar__link-img" />
-        </span>
+        <span class="navbar__link-icon"><i class="fa-solid fa-box-open"></i></span>
         <span class="navbar__link-label">Sản phẩm</span>
       </a>
     </div>
 
     <div class="navbar__user">
       <button type="button" class="navbar__btn-logout" (click)="onLogout()" title="Đăng xuất khỏi hệ thống">
-        <span class="navbar__logout-icon">🚪</span>
+        <span class="navbar__logout-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
         <span class="navbar__logout-text">Đăng xuất</span>
       </button>
     </div>

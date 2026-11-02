@@ -1,4 +1,4 @@
-<div class="page-container page-container--products">
+﻿<div class="page-container page-container--products">
 
   <!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
   <div class="page-header">
@@ -15,7 +15,7 @@
   <div class="toolbar">
     <!-- Search -->
     <div class="search-bar">
-      <span class="search-bar__icon">🔍</span>
+      <i class="fa-solid fa-magnifying-glass search-bar__icon"></i>
       <input
         id="product-search"
         type="text"
@@ -66,7 +66,7 @@
                 <td colspan="5" class="empty-cell">
                   <div class="empty-state">
                     <div class="empty-state__icon">
-                      <img src="/icons/product.png" alt="Sản phẩm" class="empty-state__img" />
+                      <i class="fa-solid fa-box-open" style="font-size: 40px; color: #9ca3af;"></i>
                     </div>
                     <p class="empty-state__title">Không tìm thấy sản phẩm</p>
                     <p class="empty-state__desc">Thử tìm kiếm với từ khóa khác hoặc thêm sản phẩm mới</p>
@@ -107,10 +107,10 @@
                 <td class="col-action">
                   <div class="action-group">
                     <button class="btn btn--icon" (click)="openEdit(p)" title="Chỉnh sửa">
-                      <img src="/icons/edit.png" alt="Chỉnh sửa" class="action-icon-img" />
+                      <i class="fa-solid fa-pen-to-square" style="font-size: 14px; color: #2563eb;"></i>
                     </button>
                     <button class="btn btn--icon btn--icon-danger" (click)="confirmDelete(p.id)" title="Xóa">
-                      <img src="/icons/bin.png" alt="Xóa" class="action-icon-img" />
+                      <i class="fa-regular fa-trash-can" style="font-size: 14px; color: #dc2626;"></i>
                     </button>
                   </div>
                 </td>

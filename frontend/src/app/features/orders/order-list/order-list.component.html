@@ -11,7 +11,7 @@
   <!-- Search + filter toggle -->
   <div class="search-row">
     <div class="search-bar">
-      <span class="search-bar__icon">🔍</span>
+      <i class="fa-solid fa-magnifying-glass search-bar__icon"></i>
       <input type="text" class="search-bar__input" placeholder="Tìm khách hàng, SĐT..."
         [ngModel]="keyword()" (ngModelChange)="keyword.set($event)" (keydown.enter)="search()" />
     </div>
@@ -19,10 +19,10 @@
             [class.filter-btn-note--active]="filterHasNote() === true"
             (click)="toggleHasNote()"
             title="Lọc đơn có ghi chú">
-      📝 Có ghi chú
+      <i class="fa-solid fa-note-sticky"></i> Có ghi chú
     </button>
     <button class="btn btn--ghost filter-toggle" [class.filter-toggle--active]="showFilters()" (click)="toggleFilters()">
-      ⚙️ Lọc @if (hasActiveFilters()) { <span class="filter-dot"></span> }
+      <i class="fa-solid fa-filter"></i> Lọc @if (hasActiveFilters()) { <span class="filter-dot"></span> }
     </button>
   </div>
 
@@ -71,7 +71,7 @@
         </div>
       </div>
       <div class="filter-actions">
-        <button class="btn btn--ghost btn-sm" (click)="clearFilters()" [disabled]="!hasActiveFilters()">🗑️ Xóa lọc</button>
+        <button class="btn btn--ghost btn-sm" (click)="clearFilters()" [disabled]="!hasActiveFilters()"><i class="fa-solid fa-trash-can"></i> Xóa lọc</button>
         <button class="btn btn--primary btn-sm" (click)="search()">Tìm kiếm</button>
       </div>
     </div>
@@ -103,7 +103,7 @@
   <!-- Empty -->
   @if (!loading() && orders().length === 0) {
     <div class="empty-state">
-      <div class="empty-state__icon">📋</div>
+      <div class="empty-state__icon"><i class="fa-regular fa-clipboard"></i></div>
       <h2 class="empty-state__title">Không có đơn hàng</h2>
       <p class="empty-state__desc">{{ hasActiveFilters() ? 'Không có đơn hàng phù hợp với bộ lọc' : 'Tạo đơn hàng đầu tiên của bạn' }}</p>
       @if (!hasActiveFilters()) { <a routerLink="/orders/new" class="btn btn--primary">+ Tạo đơn hàng</a> }
@@ -216,20 +216,14 @@
                       @if (exportingId() === o.id) {
                         <span class="btn-spinner"></span>
                       } @else {
-                        <svg class="action-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                          <polyline points="14 2 14 8 20 8"/>
-                          <line x1="16" y1="13" x2="8" y2="13"/>
-                          <line x1="16" y1="17" x2="8" y2="17"/>
-                          <polyline points="10 9 9 9 8 9"/>
-                        </svg>
+                        <i class="fa-solid fa-file-invoice action-fa-icon"></i>
                       }
                     </button>
                     <a [routerLink]="['/orders', o.id]" class="btn-view" title="Xem chi tiết">
-                      <img src="/icons/eye.png" alt="Chi tiết" class="action-icon-img" />
+                      <i class="fa-regular fa-eye action-fa-icon"></i>
                     </a>
                     <button class="btn-delete" (click)="confirmDelete(o.id)" title="Xóa">
-                      <img src="/icons/bin.png" alt="Xóa" class="action-icon-img" />
+                      <i class="fa-regular fa-trash-can action-fa-icon"></i>
                     </button>
                   </div>
                 </td>
@@ -242,11 +236,11 @@
       <!-- Pagination -->
       @if (totalPages() > 1) {
         <div class="pagination">
-          <button class="btn btn--ghost btn-sm" [disabled]="currentPage()===0" (click)="changePage(currentPage()-1)">‹ Trước</button>
+          <button class="btn btn--ghost btn-sm" [disabled]="currentPage()===0" (click)="changePage(currentPage()-1)"><i class="fa-solid fa-chevron-left"></i> Trước</button>
           @for (p of pages(); track p) {
             <button class="btn btn--ghost btn-sm" [class.pagination__btn--active]="p===currentPage()" (click)="changePage(p)">{{ p+1 }}</button>
           }
-          <button class="btn btn--ghost btn-sm" [disabled]="currentPage()>=totalPages()-1" (click)="changePage(currentPage()+1)">Sau ›</button>
+          <button class="btn btn--ghost btn-sm" [disabled]="currentPage()>=totalPages()-1" (click)="changePage(currentPage()+1)">Sau <i class="fa-solid fa-chevron-right"></i></button>
         </div>
       }
     </div>
