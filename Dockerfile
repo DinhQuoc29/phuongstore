@@ -44,7 +44,7 @@ WORKDIR /app
 COPY --from=backend-builder /app/target/*.jar app.jar
 
 # Copy Angular build output into Spring Boot static resources
-COPY --from=frontend-builder /app/frontend/dist/nhungtrinhstore-fe/browser/ /app/static/
+COPY --from=frontend-builder /app/frontend/dist/phuongstore-fe/browser/ /app/static/
 
 # Create a startup script
 RUN echo '#!/bin/sh' > /start.sh && \

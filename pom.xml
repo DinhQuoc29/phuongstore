@@ -10,9 +10,9 @@
 	</parent>
 
 	<groupId>com.example</groupId>
-	<artifactId>nhungtrinhstore</artifactId>
+	<artifactId>phuongstore</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>nhungtrinhstore</name>
+	<name>phuongstore</name>
 	<description>Korean Goods Pickup Order Management System</description>
 
 	<properties>

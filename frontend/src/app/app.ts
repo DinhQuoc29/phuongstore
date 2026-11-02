@@ -10,5 +10,5 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
   styleUrl: './app.css'
 })
 export class App {
-  readonly title = 'NhungTrinh Store';
+  readonly title = 'Phương Store';
 }

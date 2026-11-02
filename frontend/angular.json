@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "nhungtrinhstore-fe": {
+    "phuongstore-fe": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -66,10 +66,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "nhungtrinhstore-fe:build:production"
+              "buildTarget": "phuongstore-fe:build:production"
             },
             "development": {
-              "buildTarget": "nhungtrinhstore-fe:build:development"
+              "buildTarget": "phuongstore-fe:build:development"
             }
           },
           "defaultConfiguration": "development"

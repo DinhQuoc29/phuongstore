@@ -19,19 +19,19 @@ export const routes: Routes = [
     path: 'orders',
     loadComponent: () =>
       import('./features/orders/order-list/order-list.component').then(m => m.OrderListComponent),
-    title: 'Danh sách đơn hàng — NhungTrinh Store'
+    title: 'Danh sách đơn hàng — Phương Store'
   },
   {
     path: 'orders/new',
     loadComponent: () =>
       import('./features/orders/order-form/order-form.component').then(m => m.OrderFormComponent),
-    title: 'Tạo đơn hàng mới — NhungTrinh Store'
+    title: 'Tạo đơn hàng mới — Phương Store'
   },
   {
     path: 'orders/:id',
     loadComponent: () =>
       import('./features/orders/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
-    title: 'Chi tiết đơn hàng — NhungTrinh Store'
+    title: 'Chi tiết đơn hàng — Phương Store'
   },
 
   // ---------------------------------------------------------------
@@ -41,7 +41,7 @@ export const routes: Routes = [
     path: 'pickup',
     loadComponent: () =>
       import('./features/pickup/pickup-checklist/pickup-checklist.component').then(m => m.PickupChecklistComponent),
-    title: 'Gom hàng — NhungTrinh Store'
+    title: 'Gom hàng — Phương Store'
   },
 
   // ---------------------------------------------------------------
@@ -51,7 +51,7 @@ export const routes: Routes = [
     path: 'customers',
     loadComponent: () =>
       import('./features/customers/customer-list/customer-list.component').then(m => m.CustomerListComponent),
-    title: 'Quản lý khách hàng — NhungTrinh Store'
+    title: 'Quản lý khách hàng — Phương Store'
   },
 
   // ---------------------------------------------------------------
@@ -61,7 +61,7 @@ export const routes: Routes = [
     path: 'products',
     loadComponent: () =>
       import('./features/products/product-list/product-list.component').then(m => m.ProductListComponent),
-    title: 'Quản lý sản phẩm — NhungTrinh Store'
+    title: 'Quản lý sản phẩm — Phương Store'
   },
 
   // Wildcard — 404
