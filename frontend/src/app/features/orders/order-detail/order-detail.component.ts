@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, input, signal, computed } from '@angular/core';
+﻿import { Component, OnInit, inject, input, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { OrderService } from '../../../core/services/order.service';
 import { ProductService } from '../../../core/services/product.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { InvoiceExportService } from '../../../core/services/invoice-export.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import {
@@ -51,6 +52,7 @@ export class OrderDetailComponent implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly toast          = inject(ToastService);
   private readonly router         = inject(Router);
+  private readonly invoiceExportService = inject(InvoiceExportService);
 
   order   = signal<Order | null>(null);
   loading = signal(true);
@@ -117,6 +119,12 @@ export class OrderDetailComponent implements OnInit {
     ).slice(0, 8);
   });
 
+    exportInvoice() {
+    const o = this.order();
+    if (!o) return;
+    this.invoiceExportService.exportOrder(o);
+    this.toast.success('Đã xuất hóa đơn ảnh thành công!');
+  }
   ngOnInit() {
     this.loadOrder();
     this.productService.getAll().subscribe(ps => this.allProducts.set(ps));

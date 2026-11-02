@@ -1,4 +1,4 @@
-/* Order List — Clean Admin Table */
+﻿/* Order List — Clean Admin Table */
 
 .page-container--orders {
   max-width: 1280px !important;
@@ -102,7 +102,7 @@
 
 .skeleton-row {
   display: grid;
-  grid-template-columns: 70px 95px 1fr 130px 130px 70px 80px 110px 110px 70px;
+  grid-template-columns: 70px 95px 1fr 130px 130px 130px 70px 80px 110px 110px 104px;
   gap: var(--space-3);
   align-items: center;
   padding: 12px var(--space-4);
@@ -113,6 +113,7 @@
 .skeleton-col-date     { height: 16px; width: 86px; }
 .skeleton-col-customer { height: 16px; width: 70%; }
 .skeleton-col-note     { height: 16px; width: 100px; }
+.skeleton-col-engraving { height: 16px; width: 100px; }
 .skeleton-col-amount   { height: 16px; width: 110px; margin-left: auto; }
 .skeleton-col-qty      { height: 20px; width: 50px; border-radius: var(--radius-full); margin-left: auto; }
 .skeleton-col-status   { height: 22px; width: 82px; border-radius: var(--radius-full); }
@@ -123,11 +124,12 @@
 .col-date     { width: 95px; white-space: nowrap; }
 .col-customer { width: auto; min-width: 140px; }
 .col-note     { width: 140px; max-width: 170px; }
+.col-engraving { width: 140px; max-width: 170px; }
 .col-amount   { width: 130px; }
 .col-qty      { width: 75px; }
 .col-payment  { width: 115px; }
 .col-shipping { width: 115px; }
-.col-action   { width: 70px; text-align: center; }
+.col-action   { width: 104px; text-align: center; }
 th.col-action { text-align: center; }
 
 .order-note-text {
@@ -146,6 +148,27 @@ th.col-action { text-align: center; }
 }
 
 .order-note-empty {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  padding-left: 6px;
+}
+
+.order-engraving-text {
+  display: inline-block;
+  font-size: 12px;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+  vertical-align: middle;
+}
+
+.order-engraving-empty {
   color: var(--color-text-muted);
   font-size: 13px;
   padding-left: 6px;
@@ -238,6 +261,51 @@ th.num-col { text-align: right; }
   align-items: center;
   justify-content: center;
   gap: 4px;
+}
+
+.btn-invoice {
+  border: none;
+  background: transparent;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: #2563eb;
+}
+
+.btn-invoice:hover:not(:disabled) {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.btn-invoice:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-icon-svg {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
+
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #bfdbfe;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin-invoice 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin-invoice {
+  to { transform: rotate(360deg); }
 }
 
 .btn-view,

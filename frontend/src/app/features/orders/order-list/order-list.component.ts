@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { OrderService } from '../../../core/services/order.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { InvoiceExportService } from '../../../core/services/invoice-export.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import {
@@ -22,6 +23,9 @@ import {
 export class OrderListComponent implements OnInit {
   private readonly orderService = inject(OrderService);
   private readonly toast        = inject(ToastService);
+  private readonly invoiceExportService = inject(InvoiceExportService);
+
+  exportingId   = signal<number | null>(null);
 
   orders        = signal<OrderSummary[]>([]);
   loading       = signal(true);
@@ -93,6 +97,21 @@ export class OrderListComponent implements OnInit {
   changePage(p: number) { this.currentPage.set(p); this.load(); }
   toggleFilters()       { this.showFilters.update(v => !v); }
 
+    exportInvoice(id: number, event?: Event) {
+    if (event) event.stopPropagation();
+    this.exportingId.set(id);
+    this.orderService.getOrderById(id).subscribe({
+      next: order => {
+        this.invoiceExportService.exportOrder(order);
+        this.toast.success('Đã xuất hóa đơn ảnh thành công!');
+        this.exportingId.set(null);
+      },
+      error: () => {
+        this.toast.error('Không thể tải chi tiết đơn hàng để xuất hóa đơn');
+        this.exportingId.set(null);
+      }
+    });
+  }
   confirmDelete(id: number) { this.deletingId.set(id); }
   cancelDelete()             { this.deletingId.set(null); }
   doDelete() {
