@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record UpdatePickedQuantityRequest(
 
-    @NotNull(message = "Sá»‘ lÆ°á»£ng Ä‘Ă£ nháº·t khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
-    @Min(value = 0, message = "Sá»‘ lÆ°á»£ng Ä‘Ă£ nháº·t khĂ´ng Ä‘Æ°á»£c Ă¢m")
+    @NotNull(message = "Số lượng đã lấy không được để trống")
+    @Min(value = 0, message = "Số lượng đã lấy không được âm")
     Integer pickedQuantity
 ) {}

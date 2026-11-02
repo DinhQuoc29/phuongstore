@@ -100,7 +100,10 @@ export class ProductListComponent implements OnInit {
         this.load();
         this.submitting.set(false);
       },
-      error: () => this.submitting.set(false)
+      error: (err) => {
+        this.toast.error(err?.error?.message || 'Có lỗi xảy ra khi lưu sản phẩm. Vui lòng thử lại.');
+        this.submitting.set(false);
+      }
     });
   }
 
@@ -114,13 +117,16 @@ export class ProductListComponent implements OnInit {
         this.toast.success('Đã xóa sản phẩm.');
         this.deletingId.set(null);
         this.load();
+      },
+      error: (err) => {
+        this.toast.error(err?.error?.message || 'Không thể xóa sản phẩm. Vui lòng thử lại.');
       }
     });
   }
 
   private validate(): boolean {
     const errs: Record<string, string> = {};
-    if (!this.formName().trim()) errs['productName'] = 'Tên sản phẩm không được để trống';
+    if (!this.formName().trim()) errs['productName'] = 'Tên sản phẩm không được để trống.';
     this.formErrors.set(errs);
     return Object.keys(errs).length === 0;
   }

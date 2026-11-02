@@ -12,19 +12,21 @@ import java.util.List;
 
 public record OrderRequest(
 
-    @NotNull(message = "ID khĂ¡ch hĂ ng khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
+    @NotNull(message = "ID khách hàng không được để trống")
     Long customerId,
 
-    @NotNull(message = "NgĂ y Ä‘áº·t hĂ ng khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
+    @NotNull(message = "Ngày đặt hàng không được để trống")
     LocalDate orderDate,
 
     String note,
 
-    @NotNull(message = "Tiá»n Ä‘áº·t cá»c khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
-    @PositiveOrZero(message = "Tiá»n Ä‘áº·t cá»c khĂ´ng Ä‘Æ°á»£c Ă¢m")
+    String engraving,
+
+    @NotNull(message = "Tiền đặt cọc không được để trống")
+    @PositiveOrZero(message = "Tiền đặt cọc không được âm")
     BigDecimal depositAmount,
 
-    @NotEmpty(message = "ÄÆ¡n hĂ ng pháº£i cĂ³ Ă­t nháº¥t 1 sáº£n pháº©m")
+    @NotEmpty(message = "Đơn hàng phải có ít nhất 1 sản phẩm")
     @Valid
     List<OrderItemRequest> items
 ) {}

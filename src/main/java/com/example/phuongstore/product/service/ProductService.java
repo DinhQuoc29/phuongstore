@@ -53,7 +53,7 @@ public class ProductService {
         );
     }
 
-    /** Láº¥y toĂ n bá»™ danh sĂ¡ch sáº£n pháº©m (dĂ¹ng cho dropdown khi thĂªm sáº£n pháº©m vĂ o Ä‘Æ¡n). */
+    /** Lấy toàn bộ danh sách sản phẩm (dùng cho dropdown khi thêm sản phẩm vào đơn). */
     public List<ProductResponse> getAll() {
         return productRepository.findAll(Sort.by("productName").ascending())
             .stream()
@@ -64,7 +64,7 @@ public class ProductService {
     @Transactional
     public ProductResponse update(Long id, ProductRequest request) {
         Product product = findOrThrow(id);
-        // productCode giá»¯ nguyĂªn, chá»‰ cáº­p nháº­t tĂªn vĂ  áº£nh
+        // productCode giữ nguyên, chỉ cập nhật tên và ảnh
         productMapper.updateEntity(product, request);
         return productMapper.toResponse(productRepository.save(product));
     }
@@ -72,7 +72,7 @@ public class ProductService {
     @Transactional
     public void delete(Long id) {
         if (!productRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Sáº£n pháº©m", id);
+            throw new ResourceNotFoundException("Sản phẩm", id);
         }
         productRepository.deleteById(id);
     }
@@ -83,17 +83,17 @@ public class ProductService {
 
     Product findOrThrow(Long id) {
         return productRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Sáº£n pháº©m", id));
+            .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", id));
     }
 
     /**
-     * Sinh mĂ£ sáº£n pháº©m ngáº«u nhiĂªn 6 sá»‘, Ä‘áº£m báº£o khĂ´ng trĂ¹ng láº·p.
-     * VĂ­ dá»¥: SP-123456
+     * Sinh mã sản phẩm ngẫu nhiên 6 số, đảm bảo không trùng lặp.
+     * Ví dụ: SP-123456
      */
     private String generateUniqueProductCode() {
         String code;
         do {
-            int randomNum = ThreadLocalRandom.current().nextInt(100000, 1000000);
+            int randomNum = ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
             code = "SP-" + randomNum;
         } while (productRepository.existsByProductCode(code));
         return code;

@@ -553,47 +553,94 @@
   align-items: end;
 }
 
-/* ── Qty control ──────────────────────────────────────────── */
+/* ── Modern & Balanced Qty Control ───────────────────────── */
 .qty-control {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+  max-width: 140px;
+  height: 38px;
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
   overflow: hidden;
-  background: #fff;
+  background: #ffffff;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
 }
+
+.qty-control:focus-within {
+  border-color: var(--blue-600, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
 .qty-btn {
-  width: 30px;
-  height: 34px;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 100%;
   border: none;
-  background: none;
-  color: var(--color-text-secondary);
-  font-size: 16px;
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--color-text-secondary, #475569);
+  font-size: 18px;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.12s;
+  user-select: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+  line-height: 1;
+  padding: 0;
 }
-.qty-btn:hover { background: var(--bg-hover); }
+
+.qty-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: var(--color-text-primary, #0f172a);
+}
+
+.qty-btn:active:not(:disabled) {
+  background: #cbd5e1;
+}
+
+.qty-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: var(--bg-subtle, #f8fafc);
+}
+
 .qty-input {
-  width: 40px;
-  height: 34px;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
   text-align: center;
   border: none;
-  border-left: 1px solid var(--color-border);
-  border-right: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border, #e2e8f0);
+  border-right: 1px solid var(--color-border, #e2e8f0);
   outline: none;
   font-family: var(--font-family);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  background: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  background: #ffffff;
+  padding: 0;
+  box-sizing: border-box;
 }
-/* hide number arrows */
+
+.qty-input:focus {
+  background: #ffffff;
+}
+
 .qty-input::-webkit-inner-spin-button,
-.qty-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-.qty-input[type=number] { -moz-appearance: textfield; }
+.qty-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  display: none;
+}
+.qty-input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
 
 /* ── Line total ───────────────────────────────────────────── */
 .line-total {

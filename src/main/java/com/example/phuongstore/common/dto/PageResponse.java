@@ -5,10 +5,10 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 /**
- * Wrapper chuáº©n cho response phĂ¢n trang.
- * DĂ¹ng chung cho táº¥t cáº£ cĂ¡c API cĂ³ há»— trá»£ phĂ¢n trang.
+ * Wrapper chuẩn cho response phân trang.
+ * Dùng chung cho tất cả các API có hỗ trợ phân trang.
  *
- * @param <T> Kiá»ƒu dá»¯ liá»‡u cá»§a tá»«ng pháº§n tá»­ trong trang
+ * @param <T> Kiểu dữ liệu của từng phần tử trong trang
  */
 public record PageResponse<T>(
     List<T> content,
@@ -20,7 +20,7 @@ public record PageResponse<T>(
     boolean last
 ) {
     /**
-     * Factory method: táº¡o PageResponse tá»« Spring Data Page object.
+     * Factory method: tạo PageResponse từ Spring Data Page object.
      */
     public static <T> PageResponse<T> from(Page<T> page) {
         return new PageResponse<>(

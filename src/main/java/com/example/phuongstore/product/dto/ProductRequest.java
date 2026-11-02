@@ -4,15 +4,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 /**
- * DTO Ä‘á»ƒ táº¡o má»›i hoáº·c cáº­p nháº­t sáº£n pháº©m.
- * productCode Ä‘Æ°á»£c sinh tá»± Ä‘á»™ng bá»Ÿi backend.
+ * DTO để tạo mới hoặc cập nhật sản phẩm.
+ * productCode được sinh tự động bởi backend.
  */
 public record ProductRequest(
 
-    @NotBlank(message = "TĂªn sáº£n pháº©m khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
-    @Size(max = 300, message = "TĂªn sáº£n pháº©m khĂ´ng Ä‘Æ°á»£c vÆ°á»£t quĂ¡ 300 kĂ½ tá»±")
+    @NotBlank(message = "Tên sản phẩm không được để trống")
+    @Size(max = 300, message = "Tên sản phẩm không được vượt quá 300 ký tự")
     String productName,
 
-    @Size(max = 1000, message = "URL hĂ¬nh áº£nh khĂ´ng Ä‘Æ°á»£c vÆ°á»£t quĂ¡ 1000 kĂ½ tá»±")
+    @Size(max = 1000, message = "URL hình ảnh không được vượt quá 1000 ký tự")
     String imageUrl
 ) {}

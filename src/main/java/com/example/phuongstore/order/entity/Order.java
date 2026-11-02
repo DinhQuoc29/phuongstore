@@ -42,6 +42,9 @@ public class Order {
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;
 
+    @Column(name = "engraving", columnDefinition = "TEXT")
+    private String engraving;
+
     /** Tổng tiền bán */
     @Column(name = "total_amount", nullable = false, precision = 15, scale = 0)
     @Builder.Default

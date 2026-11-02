@@ -44,12 +44,14 @@ public class OrderService {
         Customer customer = customerRepository.findById(request.customerId())
             .orElseThrow(() -> new ResourceNotFoundException("Khách hàng", request.customerId()));
 
-        // 2. Xây dựng Order cơ bản
+        // 2. Xây dựng Order cơ bản (mặc định chưa gửi)
         Order order = Order.builder()
             .customer(customer)
             .orderDate(request.orderDate() != null ? request.orderDate() : LocalDate.now())
             .note(request.note())
+            .engraving(request.engraving())
             .depositAmount(request.depositAmount() != null ? request.depositAmount() : BigDecimal.ZERO)
+            .shippingStatus(ShippingStatus.NOT_SHIPPED)
             .build();
 
         // 3. Thêm từng OrderItem
@@ -71,7 +73,7 @@ public class OrderService {
             order.addItem(item);
         }
 
-        // 4. Tính toán tự động (total, cost, profit, remaining, statuses)
+        // 4. Tính toán tự động (total, cost, profit, remaining, pickupStatus)
         recalculateOrderFinancials(order);
         recalculatePickupStatus(order);
 
@@ -139,7 +141,7 @@ public class OrderService {
     }
 
     // ================================================================
-    // UPDATE — Shipping Status
+    // UPDATE — Shipping Status (Người dùng chủ động chuyển trạng thái)
     // ================================================================
 
     @Transactional
@@ -152,6 +154,10 @@ public class OrderService {
         );
     }
 
+    // ================================================================
+    // UPDATE — Picked quantity (nhặt hàng theo item)
+    // ================================================================
+
     @Transactional
     public OrderItemResponse updatePickedQuantity(Long orderItemId, UpdatePickedQuantityRequest request) {
         OrderItem item = orderItemRepository.findByIdWithOrderAndProduct(orderItemId)
@@ -159,18 +165,11 @@ public class OrderService {
 
         int newPicked = request.pickedQuantity();
 
-        // Validation: không nhặt nhiều hơn số đã đặt
+        // Validation: không lấy nhiều hơn số đã đặt, không được âm
         if (newPicked > item.getQuantity()) {
             throw new BusinessException(
-                "Số lượng nhặt (%d) không được vượt quá số lượng đặt (%d) cho sản phẩm '%s'"
+                "Số lượng đã lấy (%d) không được vượt quá số lượng đặt (%d) cho sản phẩm '%s'"
                     .formatted(newPicked, item.getQuantity(), item.getProduct().getProductName())
-            );
-        }
-
-        if (newPicked < item.getShippedQuantity()) {
-            throw new BusinessException(
-                "Số lượng đã lấy (%d) không được nhỏ hơn số lượng đã gửi (%d) cho sản phẩm '%s'"
-                    .formatted(newPicked, item.getShippedQuantity(), item.getProduct().getProductName())
             );
         }
 
@@ -191,7 +190,7 @@ public class OrderService {
 
         if (newShipped > item.getQuantity()) {
             throw new BusinessException(
-                "Số lượng gửi (%d) không được vượt quá số lượng đặt (%d) cho sản phẩm '%s'"
+                "Số lượng đã gửi (%d) không được vượt quá số lượng đặt (%d) cho sản phẩm '%s'"
                     .formatted(newShipped, item.getQuantity(), item.getProduct().getProductName())
             );
         }
@@ -199,50 +198,52 @@ public class OrderService {
         orderItemRepository.updateShippedQuantity(orderItemId, newShipped);
         item.setShippedQuantity(newShipped);
 
-        recalculateShippingStatusById(item.getOrder().getId());
-
         return orderMapper.toItemResponse(item);
     }
 
     // ================================================================
-    // DELETE
+    // UPDATE — Payment Status
     // ================================================================
 
     @Transactional
-    public void deleteOrder(Long id) {
-        if (!orderRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Đơn hàng", id);
-        }
-        orderRepository.deleteById(id);
+    public OrderResponse updatePaymentStatus(Long orderId, UpdatePaymentStatusRequest request) {
+        Order order = findOrderWithItemsOrThrow(orderId);
+        order.setPaymentStatus(request.paymentStatus());
+        orderRepository.save(order);
+        return orderMapper.toResponse(
+            orderRepository.findByIdWithItemsAndCustomer(orderId).orElseThrow()
+        );
     }
 
+    // ================================================================
+    // BUSINESS LOGIC: Recalculate
+    // ================================================================
+
     void recalculateOrderFinancials(Order order) {
-        BigDecimal total = order.getItems().stream()
-            .map(OrderItem::getLineTotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal total = BigDecimal.ZERO;
+        BigDecimal totalCost = BigDecimal.ZERO;
 
-        BigDecimal totalCost = order.getItems().stream()
-            .map(OrderItem::getLineCostTotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        for (OrderItem item : order.getItems()) {
+            BigDecimal qty = BigDecimal.valueOf(item.getQuantity());
+            BigDecimal unitPrice = item.getUnitPrice() != null ? item.getUnitPrice() : BigDecimal.ZERO;
+            BigDecimal costPrice = item.getCostPrice() != null ? item.getCostPrice() : BigDecimal.ZERO;
 
-        BigDecimal profit = total.subtract(totalCost);
+            total = total.add(unitPrice.multiply(qty));
+            totalCost = totalCost.add(costPrice.multiply(qty));
+        }
 
         order.setTotalAmount(total);
         order.setTotalCostAmount(totalCost);
-        order.setProfitAmount(profit);
+        order.setProfitAmount(total.subtract(totalCost));
 
-        BigDecimal deposit = order.getDepositAmount() != null
-            ? order.getDepositAmount() : BigDecimal.ZERO;
+        BigDecimal deposit = order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO;
+        BigDecimal remaining = total.subtract(deposit);
+        order.setRemainingAmount(remaining.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : remaining);
 
-        BigDecimal remaining = total.subtract(deposit).max(BigDecimal.ZERO);
-
-        if (order.getPaymentStatus() == PaymentStatus.PAID
-            || (total.compareTo(BigDecimal.ZERO) > 0 && deposit.compareTo(total) >= 0)) {
-            order.setPaymentStatus(PaymentStatus.PAID);
-            order.setRemainingAmount(BigDecimal.ZERO);
-        } else {
-            order.setPaymentStatus(PaymentStatus.UNPAID);
-            order.setRemainingAmount(remaining);
+        if (order.getPaymentStatus() == null || order.getPaymentStatus() == PaymentStatus.UNPAID) {
+            if (deposit.compareTo(total) >= 0 && total.compareTo(BigDecimal.ZERO) > 0) {
+                order.setPaymentStatus(PaymentStatus.PAID);
+            }
         }
     }
 
@@ -250,8 +251,8 @@ public class OrderService {
         List<OrderItem> items = order.getItems();
         if (items.isEmpty()) return;
 
-        int totalQty    = items.stream().mapToInt(OrderItem::getQuantity).sum();
-        int totalPicked = items.stream().mapToInt(OrderItem::getPickedQuantity).sum();
+        int totalQty = items.stream().mapToInt(OrderItem::getQuantity).sum();
+        int totalPicked = items.stream().mapToInt(i -> i.getPickedQuantity() != null ? i.getPickedQuantity() : 0).sum();
 
         order.setPickupStatus(computePickupStatus(totalQty, totalPicked));
     }
@@ -260,8 +261,8 @@ public class OrderService {
         List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
         if (items.isEmpty()) return;
 
-        int totalQty    = items.stream().mapToInt(OrderItem::getQuantity).sum();
-        int totalPicked = items.stream().mapToInt(OrderItem::getPickedQuantity).sum();
+        int totalQty = items.stream().mapToInt(OrderItem::getQuantity).sum();
+        int totalPicked = items.stream().mapToInt(i -> i.getPickedQuantity() != null ? i.getPickedQuantity() : 0).sum();
 
         PickupStatus newStatus = computePickupStatus(totalQty, totalPicked);
 
@@ -282,27 +283,7 @@ public class OrderService {
     }
 
     // ================================================================
-    // UPDATE — Payment Status
-    // ================================================================
-
-    @Transactional
-    public OrderResponse updatePaymentStatus(Long orderId, UpdatePaymentStatusRequest request) {
-        Order order = findOrderWithItemsOrThrow(orderId);
-        order.setPaymentStatus(request.paymentStatus());
-        if (request.paymentStatus() == PaymentStatus.PAID) {
-            order.setRemainingAmount(BigDecimal.ZERO);
-        } else {
-            BigDecimal deposit = order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO;
-            order.setRemainingAmount(order.getTotalAmount().subtract(deposit).max(BigDecimal.ZERO));
-        }
-        orderRepository.save(order);
-        return orderMapper.toResponse(
-            orderRepository.findByIdWithItemsAndCustomer(orderId).orElseThrow()
-        );
-    }
-
-    // ================================================================
-    // UPDATE — Order Item (chỉnh sửa sản phẩm / số lượng / giá bán / giá gốc)
+    // UPDATE — Item CRUD trong đơn hàng
     // ================================================================
 
     @Transactional
@@ -313,44 +294,44 @@ public class OrderService {
         Product product = productRepository.findById(request.productId())
             .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", request.productId()));
 
-        int newQty = request.quantity();
-        int newPicked  = Math.min(item.getPickedQuantity(),  newQty);
-        int newShipped = Math.min(item.getShippedQuantity(), newPicked);
-
         item.setProduct(product);
-        item.setQuantity(newQty);
+        item.setQuantity(request.quantity());
         item.setUnitPrice(request.unitPrice());
-        item.setCostPrice(request.costPrice() != null ? request.costPrice() : BigDecimal.ZERO);
-        item.setPickedQuantity(newPicked);
-        item.setShippedQuantity(newShipped);
+        if (request.costPrice() != null) {
+            item.setCostPrice(request.costPrice());
+        }
+
+        if (item.getPickedQuantity() > request.quantity()) {
+            item.setPickedQuantity(request.quantity());
+        }
+
         orderItemRepository.save(item);
 
-        Order order = findOrderWithItemsOrThrow(item.getOrder().getId());
+        Long orderId = item.getOrder().getId();
+        Order order = findOrderWithItemsOrThrow(orderId);
         recalculateOrderFinancials(order);
         recalculatePickupStatus(order);
-        recalculateShippingStatus(order);
         orderRepository.save(order);
 
         return orderMapper.toResponse(
-            orderRepository.findByIdWithItemsAndCustomer(order.getId()).orElseThrow()
+            orderRepository.findByIdWithItemsAndCustomer(orderId).orElseThrow()
         );
     }
-
-    // ================================================================
-    // CREATE — Thêm sản phẩm vào đơn hàng đang có
-    // ================================================================
 
     @Transactional
     public OrderResponse addOrderItem(Long orderId, OrderItemRequest request) {
         Order order = findOrderWithItemsOrThrow(orderId);
+
         Product product = productRepository.findById(request.productId())
             .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", request.productId()));
+
+        BigDecimal costPrice = request.costPrice() != null ? request.costPrice() : BigDecimal.ZERO;
 
         OrderItem item = OrderItem.builder()
             .product(product)
             .quantity(request.quantity())
             .unitPrice(request.unitPrice())
-            .costPrice(request.costPrice() != null ? request.costPrice() : BigDecimal.ZERO)
+            .costPrice(costPrice)
             .pickedQuantity(0)
             .shippedQuantity(0)
             .build();
@@ -358,7 +339,6 @@ public class OrderService {
         order.addItem(item);
         recalculateOrderFinancials(order);
         recalculatePickupStatus(order);
-        recalculateShippingStatus(order);
         orderRepository.save(order);
 
         return orderMapper.toResponse(
@@ -385,7 +365,6 @@ public class OrderService {
         order.getItems().removeIf(i -> i.getId().equals(orderItemId));
         recalculateOrderFinancials(order);
         recalculatePickupStatus(order);
-        recalculateShippingStatus(order);
         orderRepository.save(order);
 
         return orderMapper.toResponse(
@@ -393,38 +372,16 @@ public class OrderService {
         );
     }
 
-    /** Tính lại shippingStatus từ items đã load trong memory. */
-    void recalculateShippingStatus(Order order) {
-        List<OrderItem> items = order.getItems();
-        if (items.isEmpty()) return;
-        int totalQty     = items.stream().mapToInt(OrderItem::getQuantity).sum();
-        int totalShipped = items.stream().mapToInt(i -> i.getShippedQuantity() != null ? i.getShippedQuantity() : 0).sum();
-        order.setShippingStatus(computeShippingStatus(totalQty, totalShipped));
-    }
+    // ================================================================
+    // DELETE — Xóa toàn bộ đơn hàng
+    // ================================================================
 
-    void recalculateShippingStatusById(Long orderId) {
-        List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
-        if (items.isEmpty()) return;
-
-        int totalQty = items.stream().mapToInt(OrderItem::getQuantity).sum();
-        int totalShipped = items.stream().mapToInt(i -> i.getShippedQuantity() != null ? i.getShippedQuantity() : 0).sum();
-
-        ShippingStatus newStatus = computeShippingStatus(totalQty, totalShipped);
-
-        Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng", orderId));
-        order.setShippingStatus(newStatus);
-        orderRepository.save(order);
-    }
-
-    private ShippingStatus computeShippingStatus(int totalQty, int totalShipped) {
-        if (totalShipped == 0) {
-            return ShippingStatus.NOT_SHIPPED;
-        } else if (totalShipped >= totalQty) {
-            return ShippingStatus.SHIPPED;
-        } else {
-            return ShippingStatus.PARTIALLY_SHIPPED;
+    @Transactional
+    public void deleteOrder(Long id) {
+        if (!orderRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Đơn hàng", id);
         }
+        orderRepository.deleteById(id);
     }
 
     private Order findOrderWithItemsOrThrow(Long orderId) {

@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * Thá»±c thá»ƒ Sáº£n pháº©m.
+ * Thực thể Sản phẩm.
  */
 @Entity
 @Table(name = "products", indexes = {
@@ -24,14 +24,14 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** MĂ£ sáº£n pháº©m ná»™i bá»™, unique, dĂ¹ng Ä‘á»ƒ tra cá»©u nhanh khi nháº·t hĂ ng. */
+    /** Mã sản phẩm nội bộ, unique, dùng để tra cứu nhanh khi lấy hàng. */
     @Column(name = "product_code", nullable = false, unique = true, length = 50)
     private String productCode;
 
     @Column(name = "product_name", nullable = false, length = 300)
     private String productName;
 
-    /** URL hĂ¬nh áº£nh sáº£n pháº©m (link áº£nh máº¡ng xĂ£ há»™i hoáº·c storage). */
+    /** URL hình ảnh sản phẩm (link ảnh mạng xã hội hoặc storage). */
     @Column(name = "image_url", length = 1000)
     private String imageUrl;
 

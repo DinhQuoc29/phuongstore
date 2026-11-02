@@ -30,7 +30,7 @@ public class CustomerService {
         if (request.phoneNumber() != null && !request.phoneNumber().isBlank()) {
             String phone = request.phoneNumber().trim();
             if (customerRepository.existsByPhoneNumber(phone)) {
-                throw new BusinessException("Sá»‘ Ä‘iá»‡n thoáº¡i '" + phone + "' Ä‘Ă£ tá»“n táº¡i trong há»‡ thá»‘ng. Vui lĂ²ng kiá»ƒm tra láº¡i.");
+                throw new BusinessException("Số điện thoại '" + phone + "' đã tồn tại trong hệ thống. Vui lòng kiểm tra lại.");
             }
         }
         Customer customer = customerMapper.toEntity(request);
@@ -63,7 +63,7 @@ public class CustomerService {
         if (request.phoneNumber() != null && !request.phoneNumber().isBlank()) {
             String phone = request.phoneNumber().trim();
             if (customerRepository.existsByPhoneNumberAndIdNot(phone, id)) {
-                throw new BusinessException("Sá»‘ Ä‘iá»‡n thoáº¡i '" + phone + "' Ä‘Ă£ Ä‘Æ°á»£c sá»­ dá»¥ng bá»Ÿi khĂ¡ch hĂ ng khĂ¡c.");
+                throw new BusinessException("Số điện thoại '" + phone + "' đã được sử dụng bởi khách hàng khác.");
             }
         }
         customerMapper.updateEntity(customer, request);
@@ -73,13 +73,13 @@ public class CustomerService {
     @Transactional
     public void delete(Long id) {
         if (!customerRepository.existsById(id)) {
-            throw new ResourceNotFoundException("KhĂ¡ch hĂ ng", id);
+            throw new ResourceNotFoundException("Khách hàng", id);
         }
         customerRepository.deleteById(id);
     }
 
     Customer findOrThrow(Long id) {
         return customerRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("KhĂ¡ch hĂ ng", id));
+            .orElseThrow(() -> new ResourceNotFoundException("Khách hàng", id));
     }
 }

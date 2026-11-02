@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 public record UpdateDepositRequest(
 
-    @NotNull(message = "Tiá»n Ä‘áº·t cá»c khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
-    @PositiveOrZero(message = "Tiá»n Ä‘áº·t cá»c khĂ´ng Ä‘Æ°á»£c Ă¢m")
+    @NotNull(message = "Tiền đặt cọc không được để trống")
+    @PositiveOrZero(message = "Tiền đặt cọc không được âm")
     BigDecimal depositAmount
 ) {}

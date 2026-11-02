@@ -6,14 +6,14 @@ import jakarta.validation.constraints.Size;
 
 public record CustomerRequest(
 
-    @NotBlank(message = "Há» tĂªn khĂ¡ch hĂ ng khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
-    @Size(max = 150, message = "Há» tĂªn khĂ´ng Ä‘Æ°á»£c vÆ°á»£t quĂ¡ 150 kĂ½ tá»±")
+    @NotBlank(message = "Họ tên khách hàng không được để trống")
+    @Size(max = 150, message = "Họ tên không được vượt quá 150 ký tự")
     String fullName,
 
     @Size(max = 500, message = "Link liên hệ không được vượt quá 500 ký tự")
     String facebookUrl,
 
-    @Pattern(regexp = "^(\\+84|0)[0-9]{8,10}$", message = "Sá»‘ Ä‘iá»‡n thoáº¡i khĂ´ng há»£p lá»‡ (VD: 0901234567)")
+    @Pattern(regexp = "^(\\+84|0)[0-9]{8,10}$", message = "Số điện thoại không hợp lệ (VD: 0901234567)")
     String phoneNumber,
 
     String address

@@ -67,7 +67,6 @@ public class OrderController {
         return ResponseEntity.ok(orderService.updatePaymentStatus(id, request));
     }
 
-    /** PATCH /api/orders/{id}/shipping-status â€” Cáº­p nháº­t tráº¡ng thĂ¡i váº­n chuyá»ƒn */
     @PatchMapping("/{id}/shipping-status")
     public ResponseEntity<OrderResponse> updateShippingStatus(
         @PathVariable Long id,
@@ -115,7 +114,6 @@ public class OrderController {
         return ResponseEntity.ok(orderService.deleteOrderItem(orderItemId));
     }
 
-    /** DELETE /api/orders/{id} â€” XĂ³a Ä‘Æ¡n hĂ ng */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);

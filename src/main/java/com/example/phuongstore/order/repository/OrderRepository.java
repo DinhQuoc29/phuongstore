@@ -18,8 +18,8 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     /**
-     * Láº¥y Ä‘Æ¡n hĂ ng kĂ¨m toĂ n bá»™ items vĂ  thĂ´ng tin sáº£n pháº©m (1 query, trĂ¡nh N+1).
-     * DĂ¹ng cho trang chi tiáº¿t Ä‘Æ¡n hĂ ng.
+     * Lấy đơn hàng kèm toàn bộ items và thông tin sản phẩm (1 query, tránh N+1).
+     * Dùng cho trang chi tiết đơn hàng.
      */
     @Query("""
         SELECT DISTINCT o FROM Order o
@@ -31,8 +31,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByIdWithItemsAndCustomer(@Param("id") Long id);
 
     /**
-     * TĂ¬m kiáº¿m Ä‘Æ¡n hĂ ng cĂ³ lá»c nhiá»u tiĂªu chĂ­, há»— trá»£ phĂ¢n trang.
-     * KhĂ´ng fetch items (dĂ¹ng cho list view).
+     * Tìm kiếm đơn hàng có lọc nhiều tiêu chí, hỗ trợ phân trang.
+     * Không fetch items (dùng cho list view).
      */
     @Query("""
         SELECT o FROM Order o

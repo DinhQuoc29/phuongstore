@@ -66,6 +66,7 @@ export class OrderFormComponent implements OnInit {
   // ── Order details ─────────────────────────────────────────────────
   orderDate = signal(new Date().toISOString().split('T')[0]);
   depositAmount = signal(0);
+  engraving = signal('');
   note = signal('');
 
   // ── Form validation ────────────────────────────────────────────────
@@ -148,15 +149,15 @@ export class OrderFormComponent implements OnInit {
 
   saveNewCustomer() {
     const errs: Record<string, string> = {};
-    if (!this.newCustName().trim()) errs['fullName'] = 'Vui lòng nhập họ tên';
+    if (!this.newCustName().trim()) errs['fullName'] = 'Họ tên không được để trống.';
     const phone = this.newCustPhone().trim();
     if (phone) {
       if (!/^(\+84|0)[0-9]{8,10}$/.test(phone)) {
-        errs['phone'] = 'Số điện thoại không hợp lệ (VD: 0901234567)';
+        errs['phone'] = 'Số điện thoại không hợp lệ (VD: 0901234567).';
       } else {
         const dup = this.customers().find(c => c.phoneNumber && c.phoneNumber.trim() === phone);
         if (dup) {
-          errs['phone'] = `Số điện thoại đã tồn tại (khách: ${dup.fullName})`;
+          errs['phone'] = `Số điện thoại đã tồn tại (khách: ${dup.fullName}).`;
         }
       }
     }
@@ -179,7 +180,7 @@ export class OrderFormComponent implements OnInit {
         this.toast.success('Đã thêm khách hàng mới!');
       },
       error: (err) => {
-        const msg = err?.error?.message || 'Có lỗi xảy ra khi thêm khách hàng';
+        const msg = err?.error?.message || 'Có lỗi xảy ra khi thêm khách hàng. Vui lòng thử lại.';
         this.toast.error(msg);
         if (msg.toLowerCase().includes('số điện thoại')) {
           this.custErrors.update(e => ({ ...e, phone: msg }));
@@ -235,7 +236,7 @@ export class OrderFormComponent implements OnInit {
 
   saveNewProduct() {
     const errs: Record<string, string> = {};
-    if (!this.newProdName().trim()) errs['productName'] = 'Vui lòng nhập tên sản phẩm';
+    if (!this.newProdName().trim()) errs['productName'] = 'Tên sản phẩm không được để trống.';
     this.prodErrors.set(errs);
     if (Object.keys(errs).length > 0) return;
 
@@ -252,7 +253,10 @@ export class OrderFormComponent implements OnInit {
         this.savingProduct.set(false);
         this.toast.success('Đã thêm sản phẩm mới!');
       },
-      error: () => this.savingProduct.set(false)
+      error: (err) => {
+        this.toast.error(err?.error?.message || 'Có lỗi xảy ra khi thêm sản phẩm. Vui lòng thử lại.');
+        this.savingProduct.set(false);
+      }
     });
   }
 
@@ -262,6 +266,7 @@ export class OrderFormComponent implements OnInit {
     const req: OrderRequest = {
       customerId: this.selectedCustomer()!.id,
       orderDate: this.orderDate(),
+      engraving: this.engraving().trim() || null,
       note: this.note().trim() || null,
       depositAmount: this.depositAmount(),
       items: this.lineItems().map(l => ({
@@ -277,19 +282,22 @@ export class OrderFormComponent implements OnInit {
         this.toast.success(`Đã tạo đơn hàng #${order.id}!`);
         this.router.navigate(['/orders', order.id]);
       },
-      error: () => this.submitting.set(false)
+      error: (err) => {
+        this.toast.error(err?.error?.message || 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.');
+        this.submitting.set(false);
+      }
     });
   }
 
   private validate(): boolean {
     const errs: Record<string, string> = {};
-    if (!this.selectedCustomer()) errs['customer'] = 'Vui lòng chọn khách hàng';
-    if (this.lineItems().length === 0) errs['items'] = 'Đơn hàng phải có ít nhất 1 sản phẩm';
+    if (!this.selectedCustomer()) errs['customer'] = 'Vui lòng chọn khách hàng.';
+    if (this.lineItems().length === 0) errs['items'] = 'Đơn hàng phải có ít nhất 1 sản phẩm.';
     const hasZeroPrice = this.lineItems().some(l => l.unitPrice <= 0);
-    if (hasZeroPrice) errs['price'] = 'Tất cả sản phẩm phải có giá bán > 0';
+    if (hasZeroPrice) errs['price'] = 'Tất cả sản phẩm phải có đơn giá bán lớn hơn 0.';
     const hasNegativeCost = this.lineItems().some(l => (l.costPrice || 0) < 0);
-    if (hasNegativeCost) errs['cost'] = 'Giá gốc không được âm';
-    if (this.depositAmount() < 0) errs['deposit'] = 'Tiền đặt cọc không được âm';
+    if (hasNegativeCost) errs['cost'] = 'Giá gốc không được âm.';
+    if (this.depositAmount() < 0) errs['deposit'] = 'Tiền đặt cọc không được âm.';
     this.formErrors.set(errs);
     return Object.keys(errs).length === 0;
   }

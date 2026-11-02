@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record UpdateShippingStatusRequest(
 
-    @NotNull(message = "Tráº¡ng thĂ¡i váº­n chuyá»ƒn khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
+    @NotNull(message = "Trạng thái vận chuyển không được để trống")
     ShippingStatus shippingStatus
 ) {}

@@ -21,6 +21,7 @@ public record OrderResponse(
 
     LocalDate orderDate,
     String note,
+    String engraving,
 
     // --- Financials ---
     BigDecimal totalAmount,

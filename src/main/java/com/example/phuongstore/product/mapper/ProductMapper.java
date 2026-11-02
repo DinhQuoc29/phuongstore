@@ -6,12 +6,12 @@ import com.example.phuongstore.product.entity.Product;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper thá»§ cĂ´ng cho Product.
+ * Mapper thủ công cho Product.
  */
 @Component
 public class ProductMapper {
 
-    /** Entity â†’ Response DTO */
+    /** Entity → Response DTO */
     public ProductResponse toResponse(Product product) {
         return new ProductResponse(
             product.getId(),
@@ -22,7 +22,7 @@ public class ProductMapper {
         );
     }
 
-    /** Request DTO â†’ Entity má»›i (productCode Ä‘Æ°á»£c thiáº¿t láº­p riĂªng bá»Ÿi service) */
+    /** Request DTO → Entity mới (productCode được thiết lập riêng bởi service) */
     public Product toEntity(ProductRequest request) {
         return Product.builder()
             .productName(request.productName().trim())
@@ -30,7 +30,7 @@ public class ProductMapper {
             .build();
     }
 
-    /** Cáº­p nháº­t entity hiá»‡n cĂ³ (productCode khĂ´ng thay Ä‘á»•i) */
+    /** Cập nhật entity hiện có (productCode không thay đổi) */
     public void updateEntity(Product product, ProductRequest request) {
         product.setProductName(request.productName().trim());
         product.setImageUrl(request.imageUrl());

@@ -30,7 +30,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getById(id));
     }
 
-    /** GET /api/products?keyword=...&page=0&size=20 â€” TĂ¬m kiáº¿m sáº£n pháº©m cĂ³ phĂ¢n trang. */
+    /** GET /api/products?keyword=...&page=0&size=20 — Tìm kiếm sản phẩm có phân trang. */
     @GetMapping
     public ResponseEntity<PageResponse<ProductResponse>> search(
         @RequestParam(required = false) String keyword,
@@ -40,13 +40,13 @@ public class ProductController {
         return ResponseEntity.ok(productService.search(keyword, page, size));
     }
 
-    /** GET /api/products/all â€” Láº¥y toĂ n bá»™ danh sĂ¡ch (dĂ¹ng cho dropdown). */
+    /** GET /api/products/all — Lấy toàn bộ danh sách (dùng cho dropdown). */
     @GetMapping("/all")
     public ResponseEntity<List<ProductResponse>> getAll() {
         return ResponseEntity.ok(productService.getAll());
     }
 
-    /** PUT /api/products/{id} â€” Cáº­p nháº­t sáº£n pháº©m. */
+    /** PUT /api/products/{id} — Cập nhật sản phẩm. */
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> update(
         @PathVariable Long id,
@@ -55,7 +55,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.update(id, request));
     }
 
-    /** DELETE /api/products/{id} â€” XĂ³a sáº£n pháº©m. */
+    /** DELETE /api/products/{id} — Xóa sản phẩm. */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         productService.delete(id);

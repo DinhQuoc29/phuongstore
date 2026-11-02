@@ -54,7 +54,7 @@
               <span class="meta-val">{{ formatDate(o.orderDate) }}</span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">Nhặt hàng</span>
+              <span class="meta-label">Lấy hàng</span>
               <app-status-badge [status]="o.pickupStatus" type="pickup" />
             </div>
             <div class="meta-row">
@@ -63,6 +63,13 @@
             </div>
           </div>
         </div>
+
+        @if (o.engraving) {
+          <div class="engraving-highlight">
+            <span class="engraving-label">Khắc</span>
+            <p class="engraving-text">{{ o.engraving }}</p>
+          </div>
+        }
 
         @if (o.note) {
           <div class="note-highlight">
@@ -87,33 +94,37 @@
         <!-- Add item form -->
         @if (showAddItem()) {
           <div class="add-item-card">
-            <p class="add-item-title">Thêm sản phẩm</p>
+            <p class="add-item-title">Thêm sản phẩm mới vào đơn</p>
 
             <!-- Product search -->
-            <div class="picker-wrap" style="margin-bottom:10px">
-              <div class="search-box">
-                <input type="text" class="search-input" placeholder="Tìm sản phẩm..."
-                  [ngModel]="addProductSearch()"
-                  (ngModelChange)="addProductSearch.set($event); addProductId.set(null); showAddDrop.set(true)"
-                  (focus)="showAddDrop.set(true)"
-                  (blur)="setTimeout(() => showAddDrop.set(false), 200)"
-                  autocomplete="off" />
-              </div>
-              @if (showAddDrop() && filteredAddProducts().length > 0) {
-                <div class="search-dropdown">
-                  @for (p of filteredAddProducts(); track p.id) {
-                    <button class="search-option" (click)="selectAddProduct(p)">
-                      <span class="option-main">{{ p.productName }}</span>
-                      <span class="option-code">{{ p.productCode }}</span>
-                    </button>
-                  }
+            <div class="field-group" style="margin-bottom:12px">
+              <label class="field-label">Tìm chọn sản phẩm</label>
+              <div class="picker-wrap">
+                <div class="search-box">
+                  <input type="text" class="search-input" placeholder="Tìm theo tên hoặc mã sản phẩm..."
+                    [ngModel]="addProductSearch()"
+                    (ngModelChange)="addProductSearch.set($event); addProductId.set(null); showAddDrop.set(true)"
+                    (focus)="showAddDrop.set(true)"
+                    (blur)="setTimeout(() => showAddDrop.set(false), 200)"
+                    autocomplete="off" />
                 </div>
-              }
+                @if (showAddDrop() && filteredAddProducts().length > 0) {
+                  <div class="search-dropdown">
+                    @for (p of filteredAddProducts(); track p.id) {
+                      <button class="search-option" (click)="selectAddProduct(p)">
+                        <span class="option-main">{{ p.productName }}</span>
+                        <span class="option-code">{{ p.productCode }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
             </div>
 
-            <div class="add-controls">
+            <!-- Hàng 1: Số lượng đặt -->
+            <div class="form-grid-pair" style="margin-bottom:12px">
               <div class="field-group">
-                <label class="field-label">Số lượng</label>
+                <label class="field-label">Số lượng đặt</label>
                 <div class="qty-control">
                   <button class="qty-btn" (click)="addQty.set(addQty() - 1)" [disabled]="addQty() <= 1">−</button>
                   <input class="qty-input" type="number" min="1"
@@ -121,6 +132,11 @@
                   <button class="qty-btn" (click)="addQty.set(addQty() + 1)">+</button>
                 </div>
               </div>
+              <div class="field-group-placeholder"></div>
+            </div>
+
+            <!-- Hàng 2: Cặp Giá tiền (Giá gốc & Giá bán) -->
+            <div class="form-grid-pair" style="margin-bottom:12px">
               <div class="field-group">
                 <label class="field-label">Giá gốc (VND)</label>
                 <input class="field-input text-right" type="number" min="0" placeholder="0"
@@ -133,11 +149,27 @@
               </div>
             </div>
 
+            <!-- Hàng 3: Thanh tóm tắt nhanh Thành tiền & Tiền lời tạm tính -->
+            <div class="form-preview-bar">
+              <div class="preview-item">
+                <span class="preview-label">Thành tiền bán:</span>
+                <span class="preview-val preview-val--total">{{ formatCurrency((addPrice() || 0) * (addQty() || 1)) }}</span>
+              </div>
+              <div class="preview-item">
+                <span class="preview-label">Tiền lời tạm tính:</span>
+                <span class="preview-val preview-val--profit"
+                      [class.preview-val--positive]="((addPrice() || 0) - (addCostPrice() || 0)) >= 0"
+                      [class.preview-val--negative]="((addPrice() || 0) - (addCostPrice() || 0)) < 0">
+                  {{ ((addPrice() || 0) - (addCostPrice() || 0)) >= 0 ? '+' : '' }}{{ formatCurrency(((addPrice() || 0) - (addCostPrice() || 0)) * (addQty() || 1)) }}
+                </span>
+              </div>
+            </div>
+
             <div class="add-actions">
               <button class="btn btn--ghost" (click)="showAddItem.set(false); resetAddForm()">Hủy</button>
               <button class="btn btn--primary" (click)="submitAddItem()" [disabled]="addingItem() || !addProductId()">
                 @if (addingItem()) { <span class="spinner spinner--xs"></span> }
-                Thêm
+                Thêm sản phẩm
               </button>
             </div>
           </div>
@@ -197,7 +229,7 @@
                     <div class="ship-row">
                       <button class="ship-btn ship-btn--minus"
                               (click)="decreasePicked(item)"
-                              [disabled]="item.pickedQuantity <= 0 || item.pickedQuantity <= item.shippedQuantity || updatingPickedItem() === item.id || updatingItem() === item.id"
+                              [disabled]="item.pickedQuantity <= 0 || updatingPickedItem() === item.id || updatingItem() === item.id"
                               title="Giảm 1">−</button>
                       <button class="ship-val ship-val--btn"
                               (click)="quickSetPicked(item)"
@@ -215,34 +247,6 @@
                       <button class="ship-btn ship-btn--plus"
                               (click)="increasePicked(item)"
                               [disabled]="item.pickedQuantity >= item.quantity || updatingPickedItem() === item.id || updatingItem() === item.id"
-                              title="Tăng 1">+</button>
-                    </div>
-                  </div>
-
-                  <!-- Đã gửi (interactive) -->
-                  <div class="stat-cell stat-cell--ship">
-                    <span class="stat-label">Đã gửi</span>
-                    <div class="ship-row">
-                      <button class="ship-btn ship-btn--minus"
-                              (click)="decreaseShipped(item)"
-                              [disabled]="item.shippedQuantity <= 0 || updatingShippedItem() === item.id || updatingItem() === item.id"
-                              title="Giảm 1">−</button>
-                      <button class="ship-val ship-val--btn"
-                              (click)="quickSetShipped(item)"
-                              [disabled]="updatingShippedItem() === item.id || updatingItem() === item.id"
-                              title="Bấm để nhập số lượng đã gửi"
-                              [class.stat-val--green]="item.shippedQuantity >= item.pickedQuantity && item.pickedQuantity > 0"
-                              [class.stat-val--amber]="item.shippedQuantity > 0 && item.shippedQuantity < item.pickedQuantity"
-                              [class.stat-val--muted]="item.shippedQuantity === 0">
-                        @if (updatingShippedItem() === item.id) {
-                          <span class="spinner spinner--xs spinner--blue"></span>
-                        } @else {
-                          {{ item.shippedQuantity }}/{{ item.pickedQuantity }}
-                        }
-                      </button>
-                      <button class="ship-btn ship-btn--plus"
-                              (click)="increaseShipped(item)"
-                              [disabled]="item.shippedQuantity >= item.pickedQuantity || updatingShippedItem() === item.id || updatingItem() === item.id"
                               title="Tăng 1">+</button>
                     </div>
                   </div>
@@ -268,7 +272,7 @@
                   <p class="edit-form__title">Chỉnh sửa sản phẩm</p>
 
                   <!-- Product search -->
-                  <div class="field-group" style="margin-bottom:10px">
+                  <div class="field-group" style="margin-bottom:12px">
                     <label class="field-label">Sản phẩm</label>
                     <div class="picker-wrap">
                       <div class="search-box">
@@ -292,7 +296,8 @@
                     </div>
                   </div>
 
-                  <div class="edit-controls">
+                  <!-- Hàng 1: Cặp số lượng (Đặt & Đã lấy) -->
+                  <div class="form-grid-pair" style="margin-bottom:12px">
                     <div class="field-group">
                       <label class="field-label">Số lượng đặt</label>
                       <div class="qty-control">
@@ -306,24 +311,44 @@
                     <div class="field-group">
                       <label class="field-label">SL đã lấy</label>
                       <div class="qty-control">
-                        <button class="qty-btn" (click)="editableItems.update(items => items.map(i => i.id === item.id ? {...i, editPickedQty: Math.max(i.shippedQuantity, i.editPickedQty-1)} : i))">−</button>
-                        <input class="qty-input" type="number" [min]="item.shippedQuantity" [max]="item.editQty"
+                        <button class="qty-btn" (click)="editableItems.update(items => items.map(i => i.id === item.id ? {...i, editPickedQty: Math.max(0, i.editPickedQty-1)} : i))">−</button>
+                        <input class="qty-input" type="number" min="0" [max]="item.editQty"
                           [ngModel]="item.editPickedQty"
                           (ngModelChange)="editableItems.update(items => items.map(i => i.id === item.id ? {...i, editPickedQty: +$event} : i))" />
                         <button class="qty-btn" (click)="editableItems.update(items => items.map(i => i.id === item.id ? {...i, editPickedQty: Math.min(i.editQty, i.editPickedQty+1)} : i))">+</button>
                       </div>
                     </div>
+                  </div>
+
+                  <!-- Hàng 2: Cặp giá tiền (Giá gốc & Giá bán) -->
+                  <div class="form-grid-pair" style="margin-bottom:12px">
                     <div class="field-group">
                       <label class="field-label">Giá gốc (VND)</label>
-                      <input class="field-input" type="number" min="0"
+                      <input class="field-input text-right" type="number" min="0" placeholder="0"
                         [ngModel]="item.editCostPrice"
                         (ngModelChange)="editableItems.update(items => items.map(i => i.id === item.id ? {...i, editCostPrice: +$event} : i))" />
                     </div>
                     <div class="field-group">
                       <label class="field-label">Giá bán (VND)</label>
-                      <input class="field-input" type="number" min="0"
+                      <input class="field-input text-right" type="number" min="0" placeholder="0"
                         [ngModel]="item.editPrice"
                         (ngModelChange)="editableItems.update(items => items.map(i => i.id === item.id ? {...i, editPrice: +$event} : i))" />
+                    </div>
+                  </div>
+
+                  <!-- Hàng 3: Thanh tóm tắt nhanh Thành tiền & Tiền lời tạm tính -->
+                  <div class="form-preview-bar">
+                    <div class="preview-item">
+                      <span class="preview-label">Thành tiền bán:</span>
+                      <span class="preview-val preview-val--total">{{ formatCurrency((item.editPrice || 0) * (item.editQty || 1)) }}</span>
+                    </div>
+                    <div class="preview-item">
+                      <span class="preview-label">Tiền lời tạm tính:</span>
+                      <span class="preview-val preview-val--profit"
+                            [class.preview-val--positive]="((item.editPrice || 0) - (item.editCostPrice || 0)) >= 0"
+                            [class.preview-val--negative]="((item.editPrice || 0) - (item.editCostPrice || 0)) < 0">
+                        {{ ((item.editPrice || 0) - (item.editCostPrice || 0)) >= 0 ? '+' : '' }}{{ formatCurrency(((item.editPrice || 0) - (item.editCostPrice || 0)) * (item.editQty || 1)) }}
+                      </span>
                     </div>
                   </div>
 
@@ -339,31 +364,11 @@
             </div>
           }
         </div>
-
-        <!-- Summary footer -->
-        <div class="items-footer">
-          <div class="items-footer__stat">
-            <span class="items-footer__label">Tổng SL đặt</span>
-            <span class="items-footer__val">{{ totalOrdered() }}</span>
-          </div>
-          <div class="items-footer__stat">
-            <span class="items-footer__label">Đã lấy</span>
-            <span class="items-footer__val" [class.val--green]="totalPicked() >= totalOrdered()">{{ totalPicked() }}</span>
-          </div>
-          <div class="items-footer__stat">
-            <span class="items-footer__label">Đã gửi</span>
-            <span class="items-footer__val"
-                  [class.val--green]="totalShipped() >= totalOrdered()"
-                  [class.val--amber]="totalShipped() > 0 && totalShipped() < totalOrdered()">
-              {{ totalShipped() }}
-            </span>
-          </div>
-        </div>
       </section>
 
-      <!-- ═══════ SECTION 3: THANH TOÁN & TIỀN LỜI ═══════ -->
+      <!-- ═══════ SECTION 3: THANH TOÁN & VẬN CHUYỂN ═══════ -->
       <section class="summary-card">
-        <h2 class="step-title" style="margin-bottom:16px">Thanh toán & Tiền lời</h2>
+        <h2 class="step-title" style="margin-bottom:16px">Thanh toán & Vận chuyển</h2>
 
         <div class="summary-row">
           <span class="summary-label">Tổng giá bán ({{ editableItems().length }} sản phẩm)</span>
@@ -481,6 +486,23 @@
                       [class.payment-btn--paid]="opt.value === 'PAID'"
                       (click)="setPaymentStatus(opt.value)"
                       [disabled]="updatingPayment() || o.paymentStatus === opt.value">
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Trạng thái vận chuyển -->
+        <div class="shipping-status-section">
+          <p class="field-label">Trạng thái vận chuyển</p>
+          <div class="shipping-btns" [class.shipping-btns--loading]="updatingShipping()">
+            @for (opt of shippingOptions; track opt.value) {
+              <button class="shipping-btn"
+                      [class.shipping-btn--active]="o.shippingStatus === opt.value"
+                      [class.shipping-btn--not-shipped]="opt.value === 'NOT_SHIPPED'"
+                      [class.shipping-btn--shipped]="opt.value === 'SHIPPED'"
+                      (click)="setShippingStatus(opt.value)"
+                      [disabled]="updatingShipping() || o.shippingStatus === opt.value">
                 {{ opt.label }}
               </button>
             }

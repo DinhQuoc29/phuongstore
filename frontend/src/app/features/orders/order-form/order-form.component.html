@@ -239,6 +239,13 @@
         </div>
 
         <div class="field-group field-group--full">
+          <label class="field-label">Khắc</label>
+          <input class="field-input" type="text"
+            placeholder="Nội dung cần khắc (tên, chữ, ngày tháng...)"
+            [ngModel]="engraving()" (ngModelChange)="engraving.set($event)" />
+        </div>
+
+        <div class="field-group field-group--full">
           <label class="field-label">Ghi chú</label>
           <textarea class="field-input field-textarea"
             placeholder="Màu sắc, size, yêu cầu đặc biệt..."

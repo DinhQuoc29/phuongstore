@@ -13,16 +13,16 @@ export type PickupStatus = 'NOT_PICKED' | 'PARTIALLY_PICKED' | 'FULLY_PICKED';
 export type PaymentStatus = 'UNPAID' | 'PAID';
 
 /** Tương ứng ShippingStatus.java */
-export type ShippingStatus = 'NOT_SHIPPED' | 'PARTIALLY_SHIPPED' | 'SHIPPED';
+export type ShippingStatus = 'NOT_SHIPPED' | 'SHIPPED';
 
 // ---------------------------------------------------------------
 // UI Labels (tiếng Việt)
 // ---------------------------------------------------------------
 
 export const PICKUP_STATUS_LABELS: Record<PickupStatus, string> = {
-  NOT_PICKED: 'Chưa nhặt',
-  PARTIALLY_PICKED: 'Đang nhặt',
-  FULLY_PICKED: 'Đã nhặt đủ'
+  NOT_PICKED: 'Chưa lấy',
+  PARTIALLY_PICKED: 'Đang lấy',
+  FULLY_PICKED: 'Đã lấy đủ'
 };
 
 export const PICKUP_STATUS_COLORS: Record<PickupStatus, string> = {
@@ -43,14 +43,12 @@ export const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {
 
 export const SHIPPING_STATUS_LABELS: Record<ShippingStatus, string> = {
   NOT_SHIPPED: 'Chưa gửi',
-  PARTIALLY_SHIPPED: 'Gửi một phần',
   SHIPPED: 'Đã gửi'
 };
 
 export const SHIPPING_STATUS_COLORS: Record<ShippingStatus, string> = {
-  NOT_SHIPPED:       '#BE123C',
-  PARTIALLY_SHIPPED: '#B45309',
-  SHIPPED:           '#059669'
+  NOT_SHIPPED: '#BE123C',
+  SHIPPED:     '#059669'
 };
 
 // ---------------------------------------------------------------
@@ -96,6 +94,7 @@ export interface Order {
   customerFacebookUrl: string | null;
   orderDate: string;
   note: string | null;
+  engraving?: string | null;
   totalAmount: number;         // Tổng tiền bán
   totalCostAmount?: number;    // Tổng giá gốc
   profitAmount?: number;       // Tiền lời (totalAmount - totalCostAmount)
@@ -127,6 +126,7 @@ export interface OrderSummary {
   totalQuantity: number;
   totalPickedQuantity: number;
   note?: string | null;
+  engraving?: string | null;
 }
 
 /** Tương ứng OrderRequest.java */
@@ -134,6 +134,7 @@ export interface OrderRequest {
   customerId: number;
   orderDate: string;
   note?: string | null;
+  engraving?: string | null;
   depositAmount: number;
   items: OrderItemRequest[];
 }

@@ -71,15 +71,15 @@ export class PickupChecklistComponent implements OnInit {
   // Computed
   // ---------------------------------------------------------------
 
-  /** Tổng số sản phẩm cần nhặt (không trùng) */
+  /** Tổng số sản phẩm cần gom (không trùng) */
   readonly totalProductTypes = computed(() => this.checklist().length);
 
-  /** Tổng tất cả items cần nhặt */
+  /** Tổng tất cả items cần lấy */
   readonly totalItemsNeeded = computed(() =>
     this.checklist().reduce((sum, card) => sum + card.totalNeeded, 0)
   );
 
-  /** Tổng đã nhặt */
+  /** Tổng đã lấy */
   readonly totalItemsPicked = computed(() =>
     this.checklist().reduce((sum, card) => sum + card.totalPicked, 0)
   );
@@ -201,9 +201,9 @@ export class PickupChecklistComponent implements OnInit {
             })
           );
 
-          // Thông báo khi nhặt xong hoàn toàn một sản phẩm
+          // Thông báo khi lấy xong hoàn toàn một sản phẩm
           if (newPicked === allocation.quantity) {
-            this.toast.success(`✓ Đã nhặt đủ cho ${allocation.customerName}`);
+            this.toast.success(`Đã lấy đủ cho ${allocation.customerName}`);
           }
         },
         error: () => {
@@ -225,7 +225,7 @@ export class PickupChecklistComponent implements OnInit {
   }
 
   /**
-   * Xử lý khi người dùng nhập trực tiếp số vào ô input "Đã nhặt".
+   * Xử lý khi người dùng nhập trực tiếp số vào ô input "Đã lấy".
    * Clamp giá trị giữa 0 và alloc.quantity, chỉ gọi API nếu giá trị thay đổi.
    */
   onPickedInputChange(
@@ -277,7 +277,7 @@ export class PickupChecklistComponent implements OnInit {
           );
 
           if (newValue === allocation.quantity) {
-            this.toast.success(`✓ Đã nhặt đủ cho ${allocation.customerName}`);
+            this.toast.success(`Đã lấy đủ cho ${allocation.customerName}`);
           }
         },
         error: () => {

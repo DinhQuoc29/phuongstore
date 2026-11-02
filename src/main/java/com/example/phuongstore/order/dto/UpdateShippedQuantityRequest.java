@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public record UpdateShippedQuantityRequest(
-    @NotNull(message = "Sá»‘ lÆ°á»£ng Ä‘Ă£ gá»­i khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
-    @Min(value = 0, message = "Sá»‘ lÆ°á»£ng Ä‘Ă£ gá»­i khĂ´ng Ä‘Æ°á»£c Ă¢m")
+    @NotNull(message = "Số lượng đã gửi không được để trống")
+    @Min(value = 0, message = "Số lượng đã gửi không được âm")
     Integer shippedQuantity
 ) {}

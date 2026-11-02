@@ -8,10 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Thá»±c thá»ƒ KhĂ¡ch hĂ ng.
- * LÆ°u trá»¯ thĂ´ng tin liĂªn láº¡c cá»§a ngÆ°á»i Ä‘áº·t hĂ ng xĂ¡ch tay HĂ n Quá»‘c.
- */
 @Entity
 @Table(name = "customers")
 @Getter

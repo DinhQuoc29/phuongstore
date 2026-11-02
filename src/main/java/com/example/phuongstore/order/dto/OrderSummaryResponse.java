@@ -14,6 +14,7 @@ public record OrderSummaryResponse(
     String customerPhone,
     LocalDate orderDate,
     String note,
+    String engraving,
     BigDecimal totalAmount,
     BigDecimal totalCostAmount,
     BigDecimal profitAmount,

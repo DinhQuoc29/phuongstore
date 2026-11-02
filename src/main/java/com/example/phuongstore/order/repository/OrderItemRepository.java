@@ -32,17 +32,17 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
         """)
     List<OrderItem> findAllPendingPickupItemsWithDetails();
 
-    /** Cáº­p nháº­t trá»±c tiáº¿p picked_quantity. */
+    /** Cập nhật trực tiếp picked_quantity. */
     @Modifying
     @Query("UPDATE OrderItem oi SET oi.pickedQuantity = :pickedQuantity WHERE oi.id = :id")
     int updatePickedQuantity(@Param("id") Long id, @Param("pickedQuantity") Integer pickedQuantity);
 
-    /** Cáº­p nháº­t trá»±c tiáº¿p shipped_quantity. */
+    /** Cập nhật trực tiếp shipped_quantity. */
     @Modifying
     @Query("UPDATE OrderItem oi SET oi.shippedQuantity = :shippedQuantity WHERE oi.id = :id")
     int updateShippedQuantity(@Param("id") Long id, @Param("shippedQuantity") Integer shippedQuantity);
 
-    /** Láº¥y táº¥t cáº£ items cá»§a má»™t Ä‘Æ¡n hĂ ng. */
+    /** Lấy tất cả items của một đơn hàng. */
     @Query("SELECT oi FROM OrderItem oi WHERE oi.order.id = :orderId")
     List<OrderItem> findByOrderId(@Param("orderId") Long orderId);
 }

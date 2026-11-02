@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Xá»­ lĂ½ ngoáº¡i lá»‡ táº­p trung cho toĂ n bá»™ REST API.
- * Chuáº©n hĂ³a format response lá»—i Ä‘á»ƒ frontend dá»… xá»­ lĂ½.
+ * Xử lý ngoại lệ tập trung cho toàn bộ REST API.
+ * Chuẩn hóa định dạng phản hồi lỗi để frontend dễ xử lý.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,11 +27,11 @@ public class GlobalExceptionHandler {
         int status,
         String error,
         String message,
-        Object details      // null hoáº·c Map<field, message> cho validation errors
+        Object details      // null hoặc Map<field, message> cho validation errors
     ) {}
 
     // ---------------------------------------------------------------
-    // 404 â€” Resource Not Found
+    // 404 — Resource Not Found
     // ---------------------------------------------------------------
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
     }
 
     // ---------------------------------------------------------------
-    // 400 â€” Business Rule Violation
+    // 401 — Authentication Exception
     // ---------------------------------------------------------------
 
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
@@ -62,6 +62,10 @@ public class GlobalExceptionHandler {
             ));
     }
 
+    // ---------------------------------------------------------------
+    // 400 — Business Rule Violation
+    // ---------------------------------------------------------------
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -75,7 +79,7 @@ public class GlobalExceptionHandler {
     }
 
     // ---------------------------------------------------------------
-    // 400 â€” Jakarta Bean Validation failures
+    // 400 — Jakarta Bean Validation failures
     // ---------------------------------------------------------------
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -90,13 +94,13 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 "Validation Failed",
-                "Dá»¯ liá»‡u Ä‘áº§u vĂ o khĂ´ng há»£p lá»‡. Vui lĂ²ng kiá»ƒm tra láº¡i.",
+                "Dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại.",
                 fieldErrors
             ));
     }
 
     // ---------------------------------------------------------------
-    // 500 â€” Unhandled exceptions (safety net)
+    // 500 — Unhandled exceptions (safety net)
     // ---------------------------------------------------------------
 
     @ExceptionHandler(Exception.class)
@@ -106,7 +110,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
-                "ÄĂ£ xáº£y ra lá»—i ná»™i bá»™. Vui lĂ²ng thá»­ láº¡i sau.",
+                "Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.",
                 null
             ));
     }
