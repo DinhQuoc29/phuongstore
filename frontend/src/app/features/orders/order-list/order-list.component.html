@@ -1,4 +1,4 @@
-﻿<div class="page-container page-container--orders">
+<div class="page-container page-container--orders">
   <!-- Header -->
   <div class="page-header list-header">
     <div>
@@ -8,6 +8,17 @@
     <a routerLink="/orders/new" class="btn btn--primary">+ Tạo đơn</a>
   </div>
 
+  <!-- Navigation Tabs -->
+  <div class="order-tabs">
+    <button type="button" class="order-tab" [class.order-tab--active]="activeTab() === 'list'" (click)="setTab('list')">
+      <i class="fa-solid fa-list-ul"></i> Danh sách đơn hàng
+    </button>
+    <button type="button" class="order-tab" [class.order-tab--active]="activeTab() === 'stats'" (click)="setTab('stats')">
+      <i class="fa-solid fa-chart-line"></i> Thống kê doanh thu
+    </button>
+  </div>
+
+  @if (activeTab() === 'list') {
   <!-- Search + filter toggle -->
   <div class="search-row">
     <div class="search-bar">
@@ -15,12 +26,6 @@
       <input type="text" class="search-bar__input" placeholder="Tìm khách hàng, SĐT..."
         [ngModel]="keyword()" (ngModelChange)="keyword.set($event)" (keydown.enter)="search()" />
     </div>
-    <button class="btn btn--ghost filter-btn-note"
-            [class.filter-btn-note--active]="filterHasNote() === true"
-            (click)="toggleHasNote()"
-            title="Lọc đơn có ghi chú">
-      <i class="fa-solid fa-note-sticky"></i> Có ghi chú
-    </button>
     <button class="btn btn--ghost filter-toggle" [class.filter-toggle--active]="showFilters()" (click)="toggleFilters()">
       <i class="fa-solid fa-filter"></i> Lọc @if (hasActiveFilters()) { <span class="filter-dot"></span> }
     </button>
@@ -57,6 +62,14 @@
             <option value="">Tất cả</option>
             <option [ngValue]="true">Có ghi chú</option>
             <option [ngValue]="false">Không có ghi chú</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Khắc</label>
+          <select class="form-input form-select" [ngModel]="filterHasEngraving()" (ngModelChange)="filterHasEngraving.set($event)">
+            <option value="">Tất cả</option>
+            <option [ngValue]="true">Có khắc</option>
+            <option [ngValue]="false">Không có khắc</option>
           </select>
         </div>
       </div>
@@ -180,7 +193,7 @@
                 <!-- Số tiền phải trả -->
                 <td class="col-amount num-col">
                   <span class="remaining-text" [class.remaining--paid]="o.remainingAmount === 0">
-                    {{ o.remainingAmount === 0 ? '✅ Đủ' : formatCurrency(o.remainingAmount) }}
+                    {{ formatCurrency(o.remainingAmount) }}
                   </span>
                 </td>
 
@@ -241,6 +254,84 @@
             <button class="btn btn--ghost btn-sm" [class.pagination__btn--active]="p===currentPage()" (click)="changePage(p)">{{ p+1 }}</button>
           }
           <button class="btn btn--ghost btn-sm" [disabled]="currentPage()>=totalPages()-1" (click)="changePage(currentPage()+1)">Sau <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      }
+    </div>
+  }
+  }
+
+  <!-- TAB THỐNG KÊ DOANH THU & TIỀN LỜI -->
+  @if (activeTab() === 'stats') {
+    <div class="stats-container">
+      <!-- Selector bar -->
+      <div class="stats-toolbar">
+        <div class="stats-toolbar__group">
+          <span class="stats-toolbar__label"><i class="fa-solid fa-calendar-days"></i> Thời gian:</span>
+          <div class="stats-selectors">
+            <select class="form-input form-select stats-select"
+                    [ngModel]="selectedMonth()"
+                    (ngModelChange)="onMonthChange($event)">
+              @for (m of monthOptions; track m) {
+                <option [value]="m">Tháng {{ m }}</option>
+              }
+            </select>
+
+            <select class="form-input form-select stats-select"
+                    [ngModel]="selectedYear()"
+                    (ngModelChange)="onYearChange($event)">
+              @for (y of yearOptions; track y) {
+                <option [value]="y">Năm {{ y }}</option>
+              }
+            </select>
+
+            <button type="button" class="btn btn--ghost btn-sm stats-btn-today" (click)="setThisMonth()" title="Về tháng hiện tại">
+              <i class="fa-solid fa-clock-rotate-left"></i> Tháng này
+            </button>
+          </div>
+        </div>
+
+        <div class="stats-badge-paid">
+          <i class="fa-solid fa-circle-check"></i> Chỉ tính đơn đã thanh toán (PAID)
+        </div>
+      </div>
+
+      <!-- Loading / Content -->
+      @if (statsLoading()) {
+        <div class="stats-loading">
+          <i class="fa-solid fa-circle-notch fa-spin"></i>
+          <span>Đang tính toán dữ liệu thống kê...</span>
+        </div>
+      } @else if (statsData(); as stats) {
+        <div class="stats-grid">
+          <!-- Thẻ Tổng doanh thu -->
+          <div class="stats-card stats-card--revenue">
+            <div class="stats-card__icon-wrap">
+              <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+            <div class="stats-card__info">
+              <span class="stats-card__title">Tổng doanh thu (Tháng {{ stats.month }}/{{ stats.year }})</span>
+              <span class="stats-card__value">{{ formatCurrency(stats.totalRevenue) }}</span>
+              <span class="stats-card__hint">
+                <i class="fa-solid fa-receipt"></i> Từ <strong>{{ stats.paidOrderCount }}</strong> đơn hàng đã thanh toán
+              </span>
+            </div>
+          </div>
+
+          <!-- Thẻ Tổng tiền lời -->
+          <div class="stats-card stats-card--profit">
+            <div class="stats-card__icon-wrap">
+              <i class="fa-solid fa-arrow-trend-up"></i>
+            </div>
+            <div class="stats-card__info">
+              <span class="stats-card__title">Tổng tiền lời (Lợi nhuận)</span>
+              <span class="stats-card__value" [class.stats-card__value--negative]="stats.totalProfit < 0">
+                {{ formatCurrency(stats.totalProfit) }}
+              </span>
+              <span class="stats-card__hint">
+                <i class="fa-solid fa-coins"></i> Tiền bán trừ đi tổng vốn (giá gốc)
+              </span>
+            </div>
+          </div>
         </div>
       }
     </div>

@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    Order Form — Step-by-step Clean Layout
    ============================================================ */
 
@@ -643,15 +643,8 @@
 }
 
 /* ── Line total ───────────────────────────────────────────── */
-.line-total {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--blue-600);
-  display: block;
-  text-align: right;
-  padding-top: 4px;
-}
-.line-total--zero { color: var(--color-text-placeholder); }
+
+
 
 /* ── Field group ──────────────────────────────────────────── */
 .field-group {
@@ -1014,36 +1007,17 @@
 
 
 /* ─── Dual price controls & profit display ─── */
-.line-item__controls--dual-price {
-  display: grid;
-  grid-template-columns: 120px 1fr 1fr 1fr 1fr;
-  gap: var(--space-3);
-  align-items: end;
-}
+
 
 @media (max-width: 640px) {
-  .line-item__controls--dual-price {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-2);
-  }
+  
 }
 
-.line-profit {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-secondary);
-  display: block;
-  text-align: right;
-  padding-top: 4px;
-}
 
-.line-profit--positive {
-  color: var(--green-700, #059669);
-}
 
-.line-profit--negative {
-  color: var(--red-700, #be123c);
-}
+
+
+
 
 .summary-val--cost {
   color: var(--color-text-muted);
@@ -1072,4 +1046,104 @@
 
 .summary-val--profit-neg {
   color: #be123c;
+}
+
+
+/* ─── Dual price controls & profit display ─── */
+.line-item__controls--dual-price {
+  display: grid;
+  grid-template-columns: 124px minmax(100px, 1fr) minmax(100px, 1fr) minmax(115px, 1.1fr) minmax(105px, 1fr);
+  gap: var(--space-3, 12px);
+  align-items: flex-start;
+}
+
+.line-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.line-field .field-label {
+  height: 16px;
+  line-height: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.line-field .field-label.text-right {
+  text-align: right;
+}
+
+.line-field .field-input {
+  height: 38px;
+  box-sizing: border-box;
+}
+
+/* Box hiển thị giá trị thành tiền & tiền lời cân đối với ô input */
+.line-val-box {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 10px;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.line-val-box--profit {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.line-val-box--loss {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.line-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue-600, #2563eb);
+  white-space: nowrap;
+  padding: 0;
+  margin: 0;
+}
+
+.line-total--zero {
+  color: var(--color-text-placeholder, #94a3b8);
+}
+
+.line-profit {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-secondary, #475569);
+  white-space: nowrap;
+  padding: 0;
+  margin: 0;
+}
+
+.line-profit--positive {
+  color: var(--green-700, #059669);
+}
+
+.line-profit--negative {
+  color: var(--red-700, #be123c);
+}
+
+@media (max-width: 640px) {
+  .line-item__controls--dual-price {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
 }

@@ -1,4 +1,4 @@
-<div class="order-page">
+﻿<div class="order-page">
 
   <!-- Header -->
   <div class="order-header">
@@ -157,13 +157,13 @@
           @for (item of lineItems(); track item.product.id; let idx = $index) {
             <div class="line-item">
               <div class="line-item__top">
-                <span class="line-cat">📦</span>
+                <i class="fa-solid fa-box-open" style="color: #64748b; font-size: 16px; margin-top: 2px;"></i>
                 <div class="line-product-info">
                   <span class="line-product-name">{{ item.product.productName }}</span>
                   <span class="line-product-code">{{ item.product.productCode }}</span>
                 </div>
                 <button class="icon-btn icon-btn--danger" (click)="removeItem(idx)" title="Xóa">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
 
@@ -171,42 +171,48 @@
                 <div class="line-field">
                   <label class="field-label">Số lượng</label>
                   <div class="qty-control">
-                    <button class="qty-btn" (click)="updateQty(idx, item.quantity - 1)">−</button>
+                    <button class="qty-btn" (click)="updateQty(idx, item.quantity - 1)" title="Giảm">−</button>
                     <input class="qty-input" type="number" min="1"
                       [ngModel]="item.quantity"
                       (ngModelChange)="updateQty(idx, $event)" />
-                    <button class="qty-btn" (click)="updateQty(idx, item.quantity + 1)">+</button>
+                    <button class="qty-btn" (click)="updateQty(idx, item.quantity + 1)" title="Tăng">+</button>
                   </div>
                 </div>
 
                 <div class="line-field">
-                  <label class="field-label">Giá gốc (VND)</label>
+                  <label class="field-label text-right">Giá gốc (VND)</label>
                   <input class="field-input text-right" type="number" min="0" placeholder="0"
                     [ngModel]="item.costPrice"
                     (ngModelChange)="updateCostPrice(idx, $event)" />
                 </div>
 
                 <div class="line-field">
-                  <label class="field-label">Giá bán (VND)</label>
+                  <label class="field-label text-right">Giá bán (VND)</label>
                   <input class="field-input text-right" type="number" min="0" placeholder="0"
                     [ngModel]="item.unitPrice"
                     (ngModelChange)="updatePrice(idx, $event)" />
                 </div>
 
                 <div class="line-field">
-                  <label class="field-label">Thành tiền bán</label>
-                  <span class="line-total" [class.line-total--zero]="lineTotal(item) === 0">
-                    {{ formatCurrency(lineTotal(item)) }}
-                  </span>
+                  <label class="field-label text-right">Thành tiền bán</label>
+                  <div class="line-val-box">
+                    <span class="line-total" [class.line-total--zero]="lineTotal(item) === 0">
+                      {{ formatCurrency(lineTotal(item)) }}
+                    </span>
+                  </div>
                 </div>
 
                 <div class="line-field">
-                  <label class="field-label">Tiền lời</label>
-                  <span class="line-profit"
-                        [class.line-profit--positive]="lineProfit(item) > 0"
-                        [class.line-profit--negative]="lineProfit(item) < 0">
-                    {{ lineProfit(item) >= 0 ? '+' : '' }}{{ formatCurrency(lineProfit(item)) }}
-                  </span>
+                  <label class="field-label text-right">Tiền lời</label>
+                  <div class="line-val-box"
+                       [class.line-val-box--profit]="lineProfit(item) > 0"
+                       [class.line-val-box--loss]="lineProfit(item) < 0">
+                    <span class="line-profit"
+                          [class.line-profit--positive]="lineProfit(item) > 0"
+                          [class.line-profit--negative]="lineProfit(item) < 0">
+                      {{ lineProfit(item) >= 0 ? '+' : '' }}{{ formatCurrency(lineProfit(item)) }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

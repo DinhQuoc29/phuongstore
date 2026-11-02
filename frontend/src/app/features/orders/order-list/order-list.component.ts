@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -10,7 +10,8 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import {
   OrderSummary, OrderFilterParams,
   PickupStatus, PaymentStatus, ShippingStatus,
-  PICKUP_STATUS_LABELS, PAYMENT_STATUS_LABELS, SHIPPING_STATUS_LABELS
+  PICKUP_STATUS_LABELS, PAYMENT_STATUS_LABELS, SHIPPING_STATUS_LABELS,
+  MonthlyStatisticsResponse
 } from '../../../core/models/order.model';
 
 @Component({
@@ -41,8 +42,26 @@ export class OrderListComponent implements OnInit {
   filterShipping = signal<ShippingStatus | ''>('');
   filterFrom     = signal('');
   filterTo       = signal('');
-  filterHasNote  = signal<boolean | ''>('');
+  filterHasNote      = signal<boolean | ''>('');
+  filterHasEngraving = signal<boolean | ''>('');
   showFilters    = signal(false);
+
+  // Tabs: 'list' (Danh sách đơn) | 'stats' (Thống kê doanh thu)
+  activeTab      = signal<'list' | 'stats'>('list');
+
+  // Thống kê theo tháng
+  selectedMonth  = signal<number>(new Date().getMonth() + 1);
+  selectedYear   = signal<number>(new Date().getFullYear());
+  statsData      = signal<MonthlyStatisticsResponse | null>(null);
+  statsLoading   = signal<boolean>(false);
+
+  readonly monthOptions = Array.from({ length: 12 }, (_, i) => i + 1);
+  readonly yearOptions = [
+    new Date().getFullYear() - 2,
+    new Date().getFullYear() - 1,
+    new Date().getFullYear(),
+    new Date().getFullYear() + 1
+  ];
 
   deletingId     = signal<number | null>(null);
   deletingLabel  = computed(() => {
@@ -59,7 +78,7 @@ export class OrderListComponent implements OnInit {
 
   hasActiveFilters = computed(() =>
     !!(this.filterPickup() || this.filterPayment() || this.filterShipping() ||
-       this.filterFrom() || this.filterTo() || this.keyword() || this.filterHasNote() !== '')
+       this.filterFrom() || this.filterTo() || this.keyword() || this.filterHasNote() !== '' || this.filterHasEngraving() !== '')
   );
 
   ngOnInit() { this.load(); }
@@ -75,6 +94,7 @@ export class OrderListComponent implements OnInit {
       fromDate:       this.filterFrom()      || undefined,
       toDate:         this.filterTo()        || undefined,
       hasNote:        this.filterHasNote() !== '' ? (this.filterHasNote() as boolean) : undefined,
+      hasEngraving:   this.filterHasEngraving() !== '' ? (this.filterHasEngraving() as boolean) : undefined,
     };
     this.orderService.searchOrders(params).subscribe({
       next: p => { this.orders.set(p.content); this.totalPages.set(p.totalPages); this.totalElements.set(p.totalElements); this.loading.set(false); },
@@ -87,11 +107,17 @@ export class OrderListComponent implements OnInit {
     this.search();
   }
 
+  toggleHasEngraving() {
+    this.filterHasEngraving.update(v => v === true ? '' : true);
+    this.search();
+  }
+
   search() { this.currentPage.set(0); this.load(); }
   clearFilters() {
     this.keyword.set(''); this.filterPickup.set(''); this.filterPayment.set('');
     this.filterShipping.set(''); this.filterFrom.set(''); this.filterTo.set('');
     this.filterHasNote.set('');
+    this.filterHasEngraving.set('');
     this.currentPage.set(0); this.load();
   }
   changePage(p: number) { this.currentPage.set(p); this.load(); }
@@ -119,6 +145,44 @@ export class OrderListComponent implements OnInit {
     this.orderService.deleteOrder(id).subscribe({
       next: () => { this.toast.success('Đã xóa đơn hàng.'); this.deletingId.set(null); this.load(); }
     });
+  }
+
+  setTab(tab: 'list' | 'stats') {
+    this.activeTab.set(tab);
+    if (tab === 'stats' && !this.statsData()) {
+      this.loadStats();
+    }
+  }
+
+  loadStats() {
+    this.statsLoading.set(true);
+    this.orderService.getMonthlyStatistics(Number(this.selectedYear()), Number(this.selectedMonth())).subscribe({
+      next: (data) => {
+        this.statsData.set(data);
+        this.statsLoading.set(false);
+      },
+      error: () => {
+        this.toast.error('Không thể tải thống kê doanh thu');
+        this.statsLoading.set(false);
+      }
+    });
+  }
+
+  onMonthChange(m: any) {
+    this.selectedMonth.set(Number(m));
+    this.loadStats();
+  }
+
+  onYearChange(y: any) {
+    this.selectedYear.set(Number(y));
+    this.loadStats();
+  }
+
+  setThisMonth() {
+    const now = new Date();
+    this.selectedMonth.set(now.getMonth() + 1);
+    this.selectedYear.set(now.getFullYear());
+    this.loadStats();
   }
 
   formatCurrency(n: number): string {

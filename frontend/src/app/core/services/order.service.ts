@@ -14,7 +14,8 @@ import {
   UpdatePaymentStatusRequest,
   UpdatePickedQuantityRequest,
   UpdateShippingStatusRequest,
-  UpdateShippedQuantityRequest
+  UpdateShippedQuantityRequest,
+  MonthlyStatisticsResponse
 } from '../models/order.model';
 import { PageResponse } from '../models/api.model';
 
@@ -46,6 +47,9 @@ export class OrderService {
     if (filters.toDate) params = params.set('toDate', filters.toDate);
     if (filters.hasNote !== undefined && filters.hasNote !== null) {
       params = params.set('hasNote', filters.hasNote.toString());
+    }
+    if (filters.hasEngraving !== undefined && filters.hasEngraving !== null) {
+      params = params.set('hasEngraving', filters.hasEngraving.toString());
     }
     if (filters.keyword?.trim()) params = params.set('keyword', filters.keyword.trim());
 
@@ -91,5 +95,13 @@ export class OrderService {
   // DELETE — Order
   deleteOrder(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  // STATISTICS
+  getMonthlyStatistics(year: number, month: number): Observable<MonthlyStatisticsResponse> {
+    const params = new HttpParams()
+      .set('year', year.toString())
+      .set('month', month.toString());
+    return this.http.get<MonthlyStatisticsResponse>(`${this.base}/statistics`, { params });
   }
 }

@@ -208,7 +208,17 @@ export interface OrderFilterParams {
   fromDate?: string;
   toDate?: string;
   hasNote?: boolean;
+  hasEngraving?: boolean;
   keyword?: string;
   page?: number;
   size?: number;
+}
+
+
+export interface MonthlyStatisticsResponse {
+  year: number;
+  month: number;
+  totalRevenue: number;
+  totalProfit: number;
+  paidOrderCount: number;
 }

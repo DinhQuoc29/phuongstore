@@ -48,6 +48,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                OR (:hasNote = true AND o.note IS NOT NULL AND TRIM(o.note) != '')
                OR (:hasNote = false AND (o.note IS NULL OR TRIM(o.note) = ''))
           )
+          AND (
+               :hasEngraving IS NULL
+               OR (:hasEngraving = true AND o.engraving IS NOT NULL AND TRIM(o.engraving) != '')
+               OR (:hasEngraving = false AND (o.engraving IS NULL OR TRIM(o.engraving) = ''))
+          )
           AND (:keyword IS NULL OR :keyword = ''
                OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR c.phoneNumber LIKE CONCAT('%', :keyword, '%'))
@@ -61,7 +66,25 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate,
         @Param("hasNote") Boolean hasNote,
+        @Param("hasEngraving") Boolean hasEngraving,
         @Param("keyword") String keyword,
         Pageable pageable
+    );
+
+    /**
+     * Thống kê tổng doanh thu và tổng tiền lời của các đơn hàng đã thanh toán (PAID) trong khoảng thời gian.
+     */
+    @Query("""
+        SELECT COALESCE(SUM(o.totalAmount), 0),
+               COALESCE(SUM(o.profitAmount), 0),
+               COUNT(o)
+        FROM Order o
+        WHERE o.paymentStatus = com.example.phuongstore.order.enums.PaymentStatus.PAID
+          AND o.orderDate >= :startDate
+          AND o.orderDate <= :endDate
+        """)
+    Object getMonthlyStatisticsRaw(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate
     );
 }

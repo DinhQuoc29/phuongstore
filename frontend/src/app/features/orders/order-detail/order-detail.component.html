@@ -32,18 +32,44 @@
         </div>
 
         <div class="selected-card">
-          <div class="selected-card__info">
-            <p class="selected-card__name">{{ o.customerName }}</p>
-            @if (o.customerPhone) {
-              <a class="selected-card__sub link" [href]="'tel:' + o.customerPhone">{{ o.customerPhone }}</a>
-            }
-            @if (o.customerFacebookUrl) {
-              <a class="selected-card__sub link fb" [href]="o.customerFacebookUrl" target="_blank" rel="noopener">Link liên hệ</a>
-            }
-            @if (o.customerAddress) {
-              <span class="selected-card__sub">{{ o.customerAddress }}</span>
-            }
+          <div class="customer-profile">
+            <div class="customer-profile__header">
+              <div class="customer-avatar">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div class="customer-title-wrap">
+                <h3 class="customer-name-lg">{{ o.customerName }}</h3>
+              </div>
+            </div>
+
+            <div class="customer-details-list">
+              @if (o.customerPhone) {
+                <div class="customer-detail-item">
+                  <i class="fa-solid fa-phone detail-icon detail-icon--phone"></i>
+                  <a class="detail-val detail-val--phone" [href]="'tel:' + o.customerPhone" title="Bấm để gọi điện">
+                    {{ o.customerPhone }}
+                  </a>
+                </div>
+              }
+
+              @if (o.customerAddress) {
+                <div class="customer-detail-item">
+                  <i class="fa-solid fa-location-dot detail-icon detail-icon--address"></i>
+                  <span class="detail-val detail-val--address">{{ o.customerAddress }}</span>
+                </div>
+              }
+
+              @if (o.customerFacebookUrl) {
+                <div class="customer-detail-item">
+                  <i class="fa-solid fa-link detail-icon detail-icon--fb"></i>
+                  <a class="detail-val detail-val--fb" [href]="o.customerFacebookUrl" target="_blank" rel="noopener">
+                    Link liên hệ <i class="fb-external-icon"></i>
+                  </a>
+                </div>
+              }
+            </div>
           </div>
+
           <div class="order-meta">
             <div class="meta-row">
               <span class="meta-label">Mã đơn</span>

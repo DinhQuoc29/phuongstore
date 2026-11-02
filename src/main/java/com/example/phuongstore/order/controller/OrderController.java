@@ -27,6 +27,14 @@ public class OrderController {
     public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request));
     }
+    @GetMapping("/statistics")
+    public ResponseEntity<MonthlyStatisticsResponse> getMonthlyStatistics(
+        @RequestParam int year,
+        @RequestParam int month
+    ) {
+        return ResponseEntity.ok(orderService.getMonthlyStatistics(year, month));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
@@ -41,13 +49,14 @@ public class OrderController {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
         @RequestParam(required = false) Boolean hasNote,
+        @RequestParam(required = false) Boolean hasEngraving,
         @RequestParam(required = false) String keyword,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
         return ResponseEntity.ok(orderService.searchOrders(
             customerId, pickupStatus, paymentStatus, shippingStatus,
-            fromDate, toDate, hasNote, keyword, page, size
+            fromDate, toDate, hasNote, hasEngraving, keyword, page, size
         ));
     }
 

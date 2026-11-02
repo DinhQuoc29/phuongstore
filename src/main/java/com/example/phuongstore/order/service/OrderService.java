@@ -104,13 +104,14 @@ public class OrderService {
         LocalDate fromDate,
         LocalDate toDate,
         Boolean hasNote,
+        Boolean hasEngraving,
         String keyword,
         int page, int size
     ) {
         var pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
         Page<Order> resultPage = orderRepository.searchOrders(
             customerId, pickupStatus, paymentStatus, shippingStatus,
-            fromDate, toDate, hasNote, keyword, pageable
+            fromDate, toDate, hasNote, hasEngraving, keyword, pageable
         );
         return PageResponse.from(resultPage.map(orderMapper::toSummaryResponse));
     }
@@ -387,5 +388,37 @@ public class OrderService {
     private Order findOrderWithItemsOrThrow(Long orderId) {
         return orderRepository.findByIdWithItemsAndCustomer(orderId)
             .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng", orderId));
+    }
+
+    @Transactional(readOnly = true)
+    public MonthlyStatisticsResponse getMonthlyStatistics(int year, int month) {
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        Object result = orderRepository.getMonthlyStatisticsRaw(startDate, endDate);
+        BigDecimal totalRevenue = BigDecimal.ZERO;
+        BigDecimal totalProfit = BigDecimal.ZERO;
+        long paidOrderCount = 0L;
+
+        if (result != null) {
+            Object[] row = (result instanceof Object[]) ? (Object[]) result : new Object[]{result};
+            if (row.length > 0 && row[0] != null) {
+                totalRevenue = new BigDecimal(row[0].toString());
+            }
+            if (row.length > 1 && row[1] != null) {
+                totalProfit = new BigDecimal(row[1].toString());
+            }
+            if (row.length > 2 && row[2] != null) {
+                paidOrderCount = ((Number) row[2]).longValue();
+            }
+        }
+
+        return MonthlyStatisticsResponse.builder()
+            .year(year)
+            .month(month)
+            .totalRevenue(totalRevenue)
+            .totalProfit(totalProfit)
+            .paidOrderCount(paidOrderCount)
+            .build();
     }
 }
