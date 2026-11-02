@@ -153,3 +153,85 @@
     padding-top: var(--nav-height);
   }
 }
+
+
+/* ─── App Main Fullscreen (e.g. Login page) ─── */
+.app-main--full {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ─── User Profile & Logout in Navbar ─── */
+.navbar__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.navbar__user-info {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--color-bg-subtle, #f1f5f9);
+  border-radius: var(--radius-full, 9999px);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary, #0f172a);
+}
+
+.navbar__user-avatar {
+  font-size: 14px;
+}
+
+.navbar__user-name {
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar__btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md, 8px);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.navbar__btn-logout:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.navbar__logout-icon {
+  font-size: 14px;
+}
+
+.navbar__logout-text {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .navbar__user-info {
+    display: inline-flex;
+  }
+
+  .navbar__logout-text {
+    display: inline;
+  }
+
+  .navbar__btn-logout {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+}

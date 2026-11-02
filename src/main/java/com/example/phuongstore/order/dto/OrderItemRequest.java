@@ -8,14 +8,16 @@ import java.math.BigDecimal;
 
 public record OrderItemRequest(
 
-    @NotNull(message = "ID sáº£n pháº©m khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
+    @NotNull(message = "ID sản phẩm không được để trống")
     Long productId,
 
-    @NotNull(message = "Sá»‘ lÆ°á»£ng khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
-    @Min(value = 1, message = "Sá»‘ lÆ°á»£ng pháº£i Ă­t nháº¥t lĂ  1")
+    @NotNull(message = "Số lượng không được để trống")
+    @Min(value = 1, message = "Số lượng phải ít nhất là 1")
     Integer quantity,
 
-    @NotNull(message = "ÄÆ¡n giĂ¡ khĂ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng")
-    @Positive(message = "ÄÆ¡n giĂ¡ pháº£i lá»›n hÆ¡n 0")
-    BigDecimal unitPrice
+    @NotNull(message = "Đơn giá bán không được để trống")
+    @Positive(message = "Đơn giá bán phải lớn hơn 0")
+    BigDecimal unitPrice,
+
+    BigDecimal costPrice
 ) {}

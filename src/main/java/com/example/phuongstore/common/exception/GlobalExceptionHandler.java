@@ -50,6 +50,18 @@ public class GlobalExceptionHandler {
     // 400 â€” Business Rule Violation
     // ---------------------------------------------------------------
 
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(org.springframework.security.core.AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                "Tên đăng nhập hoặc mật khẩu không chính xác.",
+                null
+            ));
+    }
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

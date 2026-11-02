@@ -21,13 +21,17 @@ interface EditableItem {
   quantity: number;
   pickedQuantity: number;
   shippedQuantity: number;
+  costPrice: number;
   unitPrice: number;
   lineTotal: number;
+  lineCostTotal?: number;
+  lineProfit?: number;
   editing: boolean;
   // edit form state
   editProductSearch: string;
   editQty: number;
   editPickedQty: number;
+  editCostPrice: number;
   editPrice: number;
   editProductId: number;
   editProductName: string;
@@ -73,14 +77,15 @@ export class OrderDetailComponent implements OnInit {
   depositError = signal<string | null>(null);
 
   // Add item form
-  showAddItem    = signal(false);
-  addProductSearch  = signal('');
-  addProductId   = signal<number | null>(null);
-  addProductName = signal('');
-  addQty         = signal(1);
-  addPrice       = signal(0);
-  addingItem     = signal(false);
-  showAddDrop    = signal(false);
+  showAddItem      = signal(false);
+  addProductSearch = signal('');
+  addProductId     = signal<number | null>(null);
+  addProductName   = signal('');
+  addQty           = signal(1);
+  addCostPrice     = signal(0);
+  addPrice         = signal(0);
+  addingItem       = signal(false);
+  showAddDrop      = signal(false);
 
   readonly paymentOptions: { value: PaymentStatus; label: string }[] =
     (Object.keys(PAYMENT_STATUS_LABELS) as PaymentStatus[])
@@ -134,12 +139,16 @@ export class OrderDetailComponent implements OnInit {
       quantity: i.quantity,
       pickedQuantity: i.pickedQuantity,
       shippedQuantity: i.shippedQuantity,
+      costPrice: i.costPrice || 0,
       unitPrice: i.unitPrice,
       lineTotal: i.lineTotal,
+      lineCostTotal: i.lineCostTotal ?? ((i.costPrice || 0) * i.quantity),
+      lineProfit: i.lineProfit ?? (i.lineTotal - (i.costPrice || 0) * i.quantity),
       editing: false,
       editProductSearch: i.productName,
       editQty: i.quantity,
       editPickedQty: i.pickedQuantity,
+      editCostPrice: i.costPrice || 0,
       editPrice: i.unitPrice,
       editProductId: i.productId,
       editProductName: i.productName,
@@ -168,10 +177,8 @@ export class OrderDetailComponent implements OnInit {
   }
 
   quickSetPicked(item: EditableItem): void {
-    const minVal = item.shippedQuantity;
-    const maxVal = item.quantity;
     const input = window.prompt(
-      `Nhập số lượng đã lấy cho "${item.productName}" (từ ${minVal} đến ${maxVal}):`,
+      `Nhập số lượng đã lấy cho "${item.productName}" (từ ${item.shippedQuantity} đến ${item.quantity}):`,
       item.pickedQuantity.toString()
     );
     if (input === null) return;
@@ -180,12 +187,8 @@ export class OrderDetailComponent implements OnInit {
       this.toast.error('Vui lòng nhập một số hợp lệ');
       return;
     }
-    if (newVal < 0 || newVal > maxVal) {
-      this.toast.error(`Số lượng đã lấy phải từ 0 đến ${maxVal}`);
-      return;
-    }
-    if (newVal < minVal) {
-      this.toast.error(`Số lượng đã lấy không thể nhỏ hơn số lượng đã gửi (${minVal})`);
+    if (newVal < item.shippedQuantity || newVal > item.quantity) {
+      this.toast.error(`Số lượng phải từ ${item.shippedQuantity} đến ${item.quantity}`);
       return;
     }
     if (newVal === item.pickedQuantity) return;
@@ -357,6 +360,7 @@ export class OrderDetailComponent implements OnInit {
             editProductSearch: i.productName,
             editQty: i.quantity,
             editPickedQty: i.pickedQuantity,
+            editCostPrice: i.costPrice || 0,
             editPrice: i.unitPrice,
             editProductId: i.productId,
             editProductName: i.productName
@@ -387,6 +391,7 @@ export class OrderDetailComponent implements OnInit {
     this.orderService.updateOrderItem(item.id, {
       productId: item.editProductId,
       quantity: item.editQty,
+      costPrice: item.editCostPrice || 0,
       unitPrice: item.editPrice
     }).subscribe({
       next: (order) => {
@@ -460,12 +465,13 @@ export class OrderDetailComponent implements OnInit {
     const pid = this.addProductId();
     if (!pid) { this.toast.error('Chọn sản phẩm'); return; }
     if (this.addQty() < 1) { this.toast.error('Số lượng phải >= 1'); return; }
-    if (this.addPrice() <= 0) { this.toast.error('Đơn giá phải > 0'); return; }
+    if (this.addPrice() <= 0) { this.toast.error('Đơn giá bán phải > 0'); return; }
 
     this.addingItem.set(true);
     this.orderService.addOrderItem(+this.id(), {
       productId: pid,
       quantity: this.addQty(),
+      costPrice: this.addCostPrice() || 0,
       unitPrice: this.addPrice()
     }).subscribe({
       next: o => {
@@ -487,6 +493,7 @@ export class OrderDetailComponent implements OnInit {
     this.addProductName.set('');
     this.addProductSearch.set('');
     this.addQty.set(1);
+    this.addCostPrice.set(0);
     this.addPrice.set(0);
   }
 
@@ -504,6 +511,8 @@ export class OrderDetailComponent implements OnInit {
   totalPicked(): number   { return this.editableItems().reduce((s, i) => s + i.pickedQuantity, 0); }
   totalShipped(): number  { return this.editableItems().reduce((s, i) => s + i.shippedQuantity, 0); }
   totalAmount(): number   { return this.editableItems().reduce((s, i) => s + i.lineTotal, 0); }
+  totalCostAmount(): number { return this.editableItems().reduce((s, i) => s + (i.costPrice || 0) * i.quantity, 0); }
+  profitAmount(): number  { return this.totalAmount() - this.totalCostAmount(); }
   depositAmount(): number { return this.order()?.depositAmount ?? 0; }
   remainingAmount(): number {
     if (this.order()?.paymentStatus === 'PAID') return 0;

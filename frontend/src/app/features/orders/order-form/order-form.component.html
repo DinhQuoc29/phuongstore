@@ -114,6 +114,9 @@
       @if (formErrors()['price']) {
         <p class="field-error" style="margin-bottom: 12px">{{ formErrors()['price'] }}</p>
       }
+      @if (formErrors()['cost']) {
+        <p class="field-error" style="margin-bottom: 12px">{{ formErrors()['cost'] }}</p>
+      }
 
       <!-- Tìm kiếm sản phẩm -->
       <div class="picker-wrap" style="margin-bottom: 12px">
@@ -164,7 +167,7 @@
                 </button>
               </div>
 
-              <div class="line-item__controls">
+              <div class="line-item__controls line-item__controls--dual-price">
                 <div class="line-field">
                   <label class="field-label">Số lượng</label>
                   <div class="qty-control">
@@ -177,16 +180,32 @@
                 </div>
 
                 <div class="line-field">
-                  <label class="field-label">Đơn giá (VND)</label>
+                  <label class="field-label">Giá gốc (VND)</label>
+                  <input class="field-input text-right" type="number" min="0" placeholder="0"
+                    [ngModel]="item.costPrice"
+                    (ngModelChange)="updateCostPrice(idx, $event)" />
+                </div>
+
+                <div class="line-field">
+                  <label class="field-label">Giá bán (VND)</label>
                   <input class="field-input text-right" type="number" min="0" placeholder="0"
                     [ngModel]="item.unitPrice"
                     (ngModelChange)="updatePrice(idx, $event)" />
                 </div>
 
                 <div class="line-field">
-                  <label class="field-label">Thành tiền</label>
+                  <label class="field-label">Thành tiền bán</label>
                   <span class="line-total" [class.line-total--zero]="lineTotal(item) === 0">
                     {{ formatCurrency(lineTotal(item)) }}
+                  </span>
+                </div>
+
+                <div class="line-field">
+                  <label class="field-label">Tiền lời</label>
+                  <span class="line-profit"
+                        [class.line-profit--positive]="lineProfit(item) > 0"
+                        [class.line-profit--negative]="lineProfit(item) < 0">
+                    {{ lineProfit(item) >= 0 ? '+' : '' }}{{ formatCurrency(lineProfit(item)) }}
                   </span>
                 </div>
               </div>
@@ -228,13 +247,25 @@
       </div>
     </section>
 
-    <!-- ═══════════════ TỔNG KẾT ═══════════════ -->
+    <!-- ═══════════════ TỔNG KẾT & TIỀN LỜI ═══════════════ -->
     <section class="summary-card">
-      <h2 class="step-title" style="margin-bottom: 16px">Tính tiền</h2>
+      <h2 class="step-title" style="margin-bottom: 16px">Tính tiền & Tiền lời</h2>
 
       <div class="summary-row">
-        <span class="summary-label">Tổng tiền hàng ({{ lineItems().length }} sản phẩm)</span>
+        <span class="summary-label">Tổng giá bán ({{ lineItems().length }} sản phẩm)</span>
         <span class="summary-val">{{ formatCurrency(totalAmount()) }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Tổng giá gốc</span>
+        <span class="summary-val summary-val--cost">{{ formatCurrency(totalCostAmount()) }}</span>
+      </div>
+      <div class="summary-row summary-row--profit">
+        <span class="summary-label summary-label--profit">Tổng tiền lời</span>
+        <span class="summary-val summary-val--profit"
+              [class.summary-val--profit-pos]="profitAmount() >= 0"
+              [class.summary-val--profit-neg]="profitAmount() < 0">
+          {{ profitAmount() >= 0 ? '+' : '' }}{{ formatCurrency(profitAmount()) }}
+        </span>
       </div>
       <div class="summary-row">
         <span class="summary-label">Đã đặt cọc</span>
@@ -297,10 +328,10 @@
             <span class="form-error">{{ custErrors()['phone'] }}</span>
           }
         </div>
-        <!-- Facebook -->
+        <!-- Link liên hệ -->
         <div class="form-group">
-          <label class="form-label">Facebook URL</label>
-          <input id="cust-facebook" class="form-input" placeholder="https://facebook.com/ten-khach"
+          <label class="form-label">Link liên hệ (Facebook, Zalo, Instagram...)</label>
+          <input id="cust-facebook" class="form-input" placeholder="https://... (Facebook, Zalo, Instagram)"
             [ngModel]="newCustFb()" (ngModelChange)="newCustFb.set($event)" />
         </div>
         <!-- Địa chỉ -->

@@ -964,3 +964,65 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ─── Dual price controls & profit display ─── */
+.line-item__controls--dual-price {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr 1fr 1fr;
+  gap: var(--space-3);
+  align-items: end;
+}
+
+@media (max-width: 640px) {
+  .line-item__controls--dual-price {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+}
+
+.line-profit {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  display: block;
+  text-align: right;
+  padding-top: 4px;
+}
+
+.line-profit--positive {
+  color: var(--green-700, #059669);
+}
+
+.line-profit--negative {
+  color: var(--red-700, #be123c);
+}
+
+.summary-val--cost {
+  color: var(--color-text-muted);
+}
+
+.summary-row--profit {
+  background: #ecfdf5;
+  border-radius: var(--radius-md, 8px);
+  padding: 8px 12px !important;
+  margin: 4px 0;
+}
+
+.summary-label--profit {
+  font-weight: 700;
+  color: #065f46;
+}
+
+.summary-val--profit {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.summary-val--profit-pos {
+  color: #059669;
+}
+
+.summary-val--profit-neg {
+  color: #be123c;
+}

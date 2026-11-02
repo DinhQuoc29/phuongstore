@@ -12,7 +12,7 @@ import java.util.List;
 public record OrderResponse(
     Long id,
 
-    // --- Customer info (inline, khĂ´ng cáº§n gá»i thĂªm API) ---
+    // --- Customer info (inline, không cần gọi thêm API) ---
     Long customerId,
     String customerName,
     String customerPhone,
@@ -24,6 +24,8 @@ public record OrderResponse(
 
     // --- Financials ---
     BigDecimal totalAmount,
+    BigDecimal totalCostAmount,
+    BigDecimal profitAmount,
     BigDecimal depositAmount,
     BigDecimal remainingAmount,
 

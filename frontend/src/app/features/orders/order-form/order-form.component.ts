@@ -13,7 +13,8 @@ import { OrderRequest, OrderItemRequest } from '../../../core/models/order.model
 interface LineItem {
   product: Product;
   quantity: number;
-  unitPrice: number;
+  costPrice: number;   // Giá gốc (giá vốn)
+  unitPrice: number;   // Giá bán
 }
 
 @Component({
@@ -25,47 +26,47 @@ interface LineItem {
 })
 export class OrderFormComponent implements OnInit {
   private readonly customerService = inject(CustomerService);
-  private readonly productService  = inject(ProductService);
-  private readonly orderService    = inject(OrderService);
-  private readonly toast           = inject(ToastService);
-  private readonly router          = inject(Router);
+  private readonly productService = inject(ProductService);
+  private readonly orderService = inject(OrderService);
+  private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
 
   // ── Data ──────────────────────────────────────────────────────────
-  customers   = signal<Customer[]>([]);
-  products    = signal<Product[]>([]);
+  customers = signal<Customer[]>([]);
+  products = signal<Product[]>([]);
   loadingData = signal(true);
-  submitting  = signal(false);
+  submitting = signal(false);
 
   // ── Customer picker ────────────────────────────────────────────────
   selectedCustomer = signal<Customer | null>(null);
-  customerSearch   = signal('');
+  customerSearch = signal('');
   showCustomerDrop = signal(false);
 
   // Customer modal (thêm mới)
   showCustomerModal = signal(false);
-  newCustName       = signal('');
-  newCustPhone      = signal('');
-  newCustFb         = signal('');
-  newCustAddress    = signal('');
-  savingCustomer    = signal(false);
-  custErrors        = signal<Record<string, string>>({});
+  newCustName = signal('');
+  newCustPhone = signal('');
+  newCustFb = signal('');
+  newCustAddress = signal('');
+  savingCustomer = signal(false);
+  custErrors = signal<Record<string, string>>({});
 
   // ── Product picker ─────────────────────────────────────────────────
-  lineItems       = signal<LineItem[]>([]);
-  productSearch   = signal('');
+  lineItems = signal<LineItem[]>([]);
+  productSearch = signal('');
   showProductDrop = signal(false);
 
   // Product modal (thêm mới)
-  showProductModal  = signal(false);
-  newProdName       = signal('');
-  newProdImageUrl   = signal('');
-  savingProduct     = signal(false);
-  prodErrors        = signal<Record<string, string>>({});
+  showProductModal = signal(false);
+  newProdName = signal('');
+  newProdImageUrl = signal('');
+  savingProduct = signal(false);
+  prodErrors = signal<Record<string, string>>({});
 
   // ── Order details ─────────────────────────────────────────────────
-  orderDate     = signal(new Date().toISOString().split('T')[0]);
+  orderDate = signal(new Date().toISOString().split('T')[0]);
   depositAmount = signal(0);
-  note          = signal('');
+  note = signal('');
 
   // ── Form validation ────────────────────────────────────────────────
   formErrors = signal<Record<string, string>>({});
@@ -94,11 +95,17 @@ export class OrderFormComponent implements OnInit {
     this.lineItems().reduce((sum, l) => sum + l.quantity * l.unitPrice, 0)
   );
 
+  totalCostAmount = computed(() =>
+    this.lineItems().reduce((sum, l) => sum + l.quantity * (l.costPrice || 0), 0)
+  );
+
+  profitAmount = computed(() =>
+    this.totalAmount() - this.totalCostAmount()
+  );
+
   remainingAmount = computed(() =>
     Math.max(0, this.totalAmount() - this.depositAmount())
   );
-
-
 
   // ── Lifecycle ─────────────────────────────────────────────────────
   ngOnInit() {
@@ -158,10 +165,10 @@ export class OrderFormComponent implements OnInit {
 
     this.savingCustomer.set(true);
     const req: CustomerRequest = {
-      fullName:    this.newCustName().trim(),
+      fullName: this.newCustName().trim(),
       phoneNumber: this.newCustPhone().trim() || null,
       facebookUrl: this.newCustFb().trim() || null,
-      address:     this.newCustAddress().trim() || null
+      address: this.newCustAddress().trim() || null
     };
     this.customerService.create(req).subscribe({
       next: (c) => {
@@ -184,7 +191,7 @@ export class OrderFormComponent implements OnInit {
 
   // ── Product picker actions ─────────────────────────────────────────
   addProduct(p: Product) {
-    this.lineItems.update(items => [...items, { product: p, quantity: 1, unitPrice: 0 }]);
+    this.lineItems.update(items => [...items, { product: p, quantity: 1, costPrice: 0, unitPrice: 0 }]);
     this.productSearch.set('');
     this.showProductDrop.set(false);
     this.formErrors.update(e => { const n = { ...e }; delete n['items']; return n; });
@@ -199,12 +206,19 @@ export class OrderFormComponent implements OnInit {
     this.lineItems.update(items => items.map((l, i) => i === idx ? { ...l, quantity: q } : l));
   }
 
+  updateCostPrice(idx: number, val: string | number) {
+    const p = Math.max(0, Number(val));
+    this.lineItems.update(items => items.map((l, i) => i === idx ? { ...l, costPrice: p } : l));
+  }
+
   updatePrice(idx: number, val: string | number) {
     const p = Math.max(0, Number(val));
     this.lineItems.update(items => items.map((l, i) => i === idx ? { ...l, unitPrice: p } : l));
   }
 
   lineTotal(l: LineItem) { return l.quantity * l.unitPrice; }
+  lineCostTotal(l: LineItem) { return l.quantity * (l.costPrice || 0); }
+  lineProfit(l: LineItem) { return this.lineTotal(l) - this.lineCostTotal(l); }
 
   // ── Product modal actions ──────────────────────────────────────────
   openProductModal() {
@@ -228,7 +242,7 @@ export class OrderFormComponent implements OnInit {
     this.savingProduct.set(true);
     const req: ProductRequest = {
       productName: this.newProdName().trim(),
-      imageUrl:    this.newProdImageUrl().trim() || null
+      imageUrl: this.newProdImageUrl().trim() || null
     };
     this.productService.create(req).subscribe({
       next: (p) => {
@@ -246,13 +260,14 @@ export class OrderFormComponent implements OnInit {
   submit() {
     if (!this.validate()) return;
     const req: OrderRequest = {
-      customerId:    this.selectedCustomer()!.id,
-      orderDate:     this.orderDate(),
-      note:          this.note().trim() || null,
+      customerId: this.selectedCustomer()!.id,
+      orderDate: this.orderDate(),
+      note: this.note().trim() || null,
       depositAmount: this.depositAmount(),
       items: this.lineItems().map(l => ({
         productId: l.product.id,
-        quantity:  l.quantity,
+        quantity: l.quantity,
+        costPrice: l.costPrice || 0,
         unitPrice: l.unitPrice
       } as OrderItemRequest))
     };
@@ -268,11 +283,13 @@ export class OrderFormComponent implements OnInit {
 
   private validate(): boolean {
     const errs: Record<string, string> = {};
-    if (!this.selectedCustomer())       errs['customer'] = 'Vui lòng chọn khách hàng';
-    if (this.lineItems().length === 0)  errs['items']    = 'Đơn hàng phải có ít nhất 1 sản phẩm';
+    if (!this.selectedCustomer()) errs['customer'] = 'Vui lòng chọn khách hàng';
+    if (this.lineItems().length === 0) errs['items'] = 'Đơn hàng phải có ít nhất 1 sản phẩm';
     const hasZeroPrice = this.lineItems().some(l => l.unitPrice <= 0);
-    if (hasZeroPrice)                   errs['price']    = 'Tất cả sản phẩm phải có đơn giá > 0';
-    if (this.depositAmount() < 0)       errs['deposit']  = 'Tiền đặt cọc không được âm';
+    if (hasZeroPrice) errs['price'] = 'Tất cả sản phẩm phải có giá bán > 0';
+    const hasNegativeCost = this.lineItems().some(l => (l.costPrice || 0) < 0);
+    if (hasNegativeCost) errs['cost'] = 'Giá gốc không được âm';
+    if (this.depositAmount() < 0) errs['deposit'] = 'Tiền đặt cọc không được âm';
     this.formErrors.set(errs);
     return Object.keys(errs).length === 0;
   }

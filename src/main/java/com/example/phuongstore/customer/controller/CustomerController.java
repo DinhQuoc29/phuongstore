@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")   // Cho phĂ©p Angular dev server gá»i (sáº½ tinh chá»‰nh á»Ÿ prod)
+@CrossOrigin(origins = "*")
 public class CustomerController {
 
     private final CustomerService customerService;

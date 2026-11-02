@@ -42,9 +42,20 @@ public class Order {
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;
 
+    /** Tổng tiền bán */
     @Column(name = "total_amount", nullable = false, precision = 15, scale = 0)
     @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
+
+    /** Tổng giá gốc */
+    @Column(name = "total_cost_amount", precision = 15, scale = 0)
+    @Builder.Default
+    private BigDecimal totalCostAmount = BigDecimal.ZERO;
+
+    /** Tổng tiền lời (totalAmount - totalCostAmount) */
+    @Column(name = "profit_amount", precision = 15, scale = 0)
+    @Builder.Default
+    private BigDecimal profitAmount = BigDecimal.ZERO;
 
     @Column(name = "deposit_amount", nullable = false, precision = 15, scale = 0)
     @Builder.Default
@@ -77,13 +88,13 @@ public class Order {
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
 
-    /** ThĂªm item vĂ  cáº­p nháº­t quan há»‡ 2 chiá»u. */
+    /** Thêm item và cập nhật quan hệ 2 chiều. */
     public void addItem(OrderItem item) {
         items.add(item);
         item.setOrder(this);
     }
 
-    /** XĂ³a item vĂ  cáº­p nháº­t quan há»‡ 2 chiá»u. */
+    /** Xóa item và cập nhật quan hệ 2 chiều. */
     public void removeItem(OrderItem item) {
         items.remove(item);
         item.setOrder(null);

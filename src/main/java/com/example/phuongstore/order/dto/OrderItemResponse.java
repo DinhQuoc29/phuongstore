@@ -12,5 +12,8 @@ public record OrderItemResponse(
     Integer pickedQuantity,
     Integer shippedQuantity,
     BigDecimal unitPrice,
-    BigDecimal lineTotal
+    BigDecimal costPrice,
+    BigDecimal lineTotal,
+    BigDecimal lineCostTotal,
+    BigDecimal lineProfit
 ) {}

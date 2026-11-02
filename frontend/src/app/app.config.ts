@@ -8,6 +8,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,9 +17,9 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     // Router với component input binding (truyền route params qua @Input)
     provideRouter(routes, withComponentInputBinding()),
-    // HttpClient với error interceptor
+    // HttpClient với auth & error interceptors
     provideHttpClient(
-      withInterceptors([errorInterceptor])
+      withInterceptors([authInterceptor, errorInterceptor])
     )
   ]
 };

@@ -41,12 +41,29 @@ public class OrderItem {
     @Builder.Default
     private Integer shippedQuantity = 0;
 
+    /** Đơn giá bán */
     @Column(name = "unit_price", nullable = false, precision = 15, scale = 0)
     private BigDecimal unitPrice;
+
+    /** Giá gốc (giá vốn nhập vào) */
+    @Column(name = "cost_price", precision = 15, scale = 0)
+    @Builder.Default
+    private BigDecimal costPrice = BigDecimal.ZERO;
 
     @Transient
     public BigDecimal getLineTotal() {
         if (quantity == null || unitPrice == null) return BigDecimal.ZERO;
         return unitPrice.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    @Transient
+    public BigDecimal getLineCostTotal() {
+        if (quantity == null || costPrice == null) return BigDecimal.ZERO;
+        return costPrice.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    @Transient
+    public BigDecimal getLineProfit() {
+        return getLineTotal().subtract(getLineCostTotal());
     }
 }

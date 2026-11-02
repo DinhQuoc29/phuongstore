@@ -996,3 +996,61 @@
     font-size: 12px;
   }
 }
+
+
+/* ── Cost & Profit styles ── */
+.stat-val--cost {
+  color: var(--color-text-muted);
+}
+
+.line-profit-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.line-profit-title {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.line-profit-num {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.line-total-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.summary-val--cost {
+  color: var(--color-text-muted);
+}
+
+.summary-row--profit {
+  background: #ecfdf5;
+  border-radius: var(--radius-md, 8px);
+  padding: 8px 12px !important;
+  margin: 4px 0;
+}
+
+.summary-label--profit {
+  font-weight: 700;
+  color: #065f46;
+}
+
+.summary-val--profit {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.summary-val--profit-pos {
+  color: #059669;
+}
+
+.summary-val--profit-neg {
+  color: #be123c;
+}

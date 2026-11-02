@@ -2,8 +2,6 @@
 // Order Models — mirrors Spring Boot Order DTOs
 // ============================================================
 
-
-
 // ---------------------------------------------------------------
 // Enums (union types)
 // ---------------------------------------------------------------
@@ -69,8 +67,11 @@ export interface OrderItem {
   quantity: number;
   pickedQuantity: number;
   shippedQuantity: number;
-  unitPrice: number;
-  lineTotal: number;
+  unitPrice: number;        // Đơn giá bán
+  costPrice: number;        // Giá gốc (giá vốn)
+  lineTotal: number;        // Thành tiền bán
+  lineCostTotal?: number;   // Thành tiền gốc
+  lineProfit?: number;      // Tiền lời (lineTotal - lineCostTotal)
 }
 
 /** Tương ứng OrderItemRequest.java */
@@ -78,6 +79,7 @@ export interface OrderItemRequest {
   productId: number;
   quantity: number;
   unitPrice: number;
+  costPrice?: number;
 }
 
 // ---------------------------------------------------------------
@@ -94,7 +96,9 @@ export interface Order {
   customerFacebookUrl: string | null;
   orderDate: string;
   note: string | null;
-  totalAmount: number;
+  totalAmount: number;         // Tổng tiền bán
+  totalCostAmount?: number;    // Tổng giá gốc
+  profitAmount?: number;       // Tiền lời (totalAmount - totalCostAmount)
   depositAmount: number;
   remainingAmount: number;
   pickupStatus: PickupStatus;
@@ -112,6 +116,8 @@ export interface OrderSummary {
   customerPhone: string | null;
   orderDate: string;
   totalAmount: number;
+  totalCostAmount?: number;
+  profitAmount?: number;
   depositAmount: number;
   remainingAmount: number;
   pickupStatus: PickupStatus;
@@ -162,6 +168,7 @@ export interface UpdateOrderItemRequest {
   productId: number;
   quantity: number;
   unitPrice: number;
+  costPrice?: number;
 }
 
 // ---------------------------------------------------------------

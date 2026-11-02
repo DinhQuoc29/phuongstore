@@ -15,12 +15,14 @@ public record OrderSummaryResponse(
     LocalDate orderDate,
     String note,
     BigDecimal totalAmount,
+    BigDecimal totalCostAmount,
+    BigDecimal profitAmount,
     BigDecimal depositAmount,
     BigDecimal remainingAmount,
     PickupStatus pickupStatus,
     PaymentStatus paymentStatus,
     ShippingStatus shippingStatus,
-    int itemCount,             // Tá»•ng sá»‘ dĂ²ng sáº£n pháº©m
-    int totalQuantity,         // Tá»•ng SL Ä‘áº·t (sum of quantity)
-    int totalPickedQuantity    // Tá»•ng SL Ä‘Ă£ láº¥y (sum of pickedQuantity)
+    int itemCount,             // Tổng số dòng sản phẩm
+    int totalQuantity,         // Tổng SL đặt (sum of quantity)
+    int totalPickedQuantity    // Tổng SL đã lấy (sum of pickedQuantity)
 ) {}

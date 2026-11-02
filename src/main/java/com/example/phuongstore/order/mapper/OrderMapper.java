@@ -5,6 +5,7 @@ import com.example.phuongstore.order.entity.Order;
 import com.example.phuongstore.order.entity.OrderItem;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Component
@@ -12,6 +13,7 @@ public class OrderMapper {
 
     public OrderItemResponse toItemResponse(OrderItem item) {
         var product = item.getProduct();
+        BigDecimal costPrice = item.getCostPrice() != null ? item.getCostPrice() : BigDecimal.ZERO;
         return new OrderItemResponse(
             item.getId(),
             product.getId(),
@@ -22,7 +24,10 @@ public class OrderMapper {
             item.getPickedQuantity(),
             item.getShippedQuantity(),
             item.getUnitPrice(),
-            item.getLineTotal()
+            costPrice,
+            item.getLineTotal(),
+            item.getLineCostTotal(),
+            item.getLineProfit()
         );
     }
 
@@ -41,9 +46,11 @@ public class OrderMapper {
             customer.getFacebookUrl(),
             order.getOrderDate(),
             order.getNote(),
-            order.getTotalAmount(),
-            order.getDepositAmount(),
-            order.getRemainingAmount(),
+            order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO,
+            order.getTotalCostAmount() != null ? order.getTotalCostAmount() : BigDecimal.ZERO,
+            order.getProfitAmount() != null ? order.getProfitAmount() : BigDecimal.ZERO,
+            order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO,
+            order.getRemainingAmount() != null ? order.getRemainingAmount() : BigDecimal.ZERO,
             order.getPickupStatus(),
             order.getPaymentStatus(),
             order.getShippingStatus(),
@@ -64,9 +71,11 @@ public class OrderMapper {
             customer.getPhoneNumber(),
             order.getOrderDate(),
             order.getNote(),
-            order.getTotalAmount(),
-            order.getDepositAmount(),
-            order.getRemainingAmount(),
+            order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO,
+            order.getTotalCostAmount() != null ? order.getTotalCostAmount() : BigDecimal.ZERO,
+            order.getProfitAmount() != null ? order.getProfitAmount() : BigDecimal.ZERO,
+            order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO,
+            order.getRemainingAmount() != null ? order.getRemainingAmount() : BigDecimal.ZERO,
             order.getPickupStatus(),
             order.getPaymentStatus(),
             order.getShippingStatus(),

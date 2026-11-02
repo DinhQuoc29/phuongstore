@@ -38,14 +38,13 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
 
-
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         // 1. Validate & load customer
         Customer customer = customerRepository.findById(request.customerId())
-            .orElseThrow(() -> new ResourceNotFoundException("KhÄ‚Â¡ch hÄ‚Â ng", request.customerId()));
+            .orElseThrow(() -> new ResourceNotFoundException("Khách hàng", request.customerId()));
 
-        // 2. XÄ‚Â¢y dĂ¡Â»Â±ng Order cĂ†Â¡ bĂ¡ÂºÂ£n
+        // 2. Xây dựng Order cơ bản
         Order order = Order.builder()
             .customer(customer)
             .orderDate(request.orderDate() != null ? request.orderDate() : LocalDate.now())
@@ -53,29 +52,33 @@ public class OrderService {
             .depositAmount(request.depositAmount() != null ? request.depositAmount() : BigDecimal.ZERO)
             .build();
 
-        // 3. ThÄ‚Âªm tĂ¡Â»Â«ng OrderItem
+        // 3. Thêm từng OrderItem
         for (OrderItemRequest itemReq : request.items()) {
             Product product = productRepository.findById(itemReq.productId())
-                .orElseThrow(() -> new ResourceNotFoundException("SĂ¡ÂºÂ£n phĂ¡ÂºÂ©m", itemReq.productId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", itemReq.productId()));
+
+            BigDecimal costPrice = itemReq.costPrice() != null ? itemReq.costPrice() : BigDecimal.ZERO;
 
             OrderItem item = OrderItem.builder()
                 .product(product)
                 .quantity(itemReq.quantity())
                 .unitPrice(itemReq.unitPrice())
+                .costPrice(costPrice)
                 .pickedQuantity(0)
+                .shippedQuantity(0)
                 .build();
 
             order.addItem(item);
         }
 
-        // 4. TÄ‚Â­nh toÄ‚Â¡n tĂ¡Â»Â± Ă„â€˜Ă¡Â»â„¢ng (total, remaining, statuses)
+        // 4. Tính toán tự động (total, cost, profit, remaining, statuses)
         recalculateOrderFinancials(order);
         recalculatePickupStatus(order);
 
-        // 5. LĂ†Â°u (cascade sĂ¡ÂºÂ½ lĂ†Â°u cĂ¡ÂºÂ£ items)
+        // 5. Lưu (cascade sẽ lưu cả items)
         Order saved = orderRepository.save(order);
 
-        // 6. Load lĂ¡ÂºÂ¡i vĂ¡Â»â€ºi JOIN FETCH Ă„â€˜Ă¡Â»Æ’ trĂ¡ÂºÂ£ vĂ¡Â»Â response Ă„â€˜Ă¡ÂºÂ§y Ă„â€˜Ă¡Â»Â§
+        // 6. Load lại với JOIN FETCH để trả về response đầy đủ
         return orderMapper.toResponse(
             orderRepository.findByIdWithItemsAndCustomer(saved.getId()).orElseThrow()
         );
@@ -87,7 +90,7 @@ public class OrderService {
 
     public OrderResponse getOrderById(Long id) {
         Order order = orderRepository.findByIdWithItemsAndCustomer(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Ă„ÂĂ†Â¡n hÄ‚Â ng", id));
+            .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng", id));
         return orderMapper.toResponse(order);
     }
 
@@ -111,7 +114,7 @@ public class OrderService {
     }
 
     // ================================================================
-    // UPDATE Ă¢â‚¬â€ Deposit (CĂ¡ÂºÂ­p nhĂ¡ÂºÂ­t tiĂ¡Â»Ân Ă„â€˜Ă¡ÂºÂ·t cĂ¡Â»Âc)
+    // UPDATE — Deposit (Cập nhật tiền đặt cọc)
     // ================================================================
 
     @Transactional
@@ -120,29 +123,14 @@ public class OrderService {
 
         if (request.depositAmount().compareTo(order.getTotalAmount()) > 0) {
             throw new BusinessException(
-                "Tiá»n Ä‘áº·t cá»c (%sâ‚«) khĂ´ng Ä‘Æ°á»£c lá»›n hÆ¡n tá»•ng tiá»n Ä‘Æ¡n hĂ ng (%sâ‚«)"
+                "Tiền đặt cọc (%s₫) không được lớn hơn tổng tiền đơn hàng (%s₫)"
                     .formatted(request.depositAmount().toPlainString(),
                                order.getTotalAmount().toPlainString())
             );
         }
 
         order.setDepositAmount(request.depositAmount());
-
-        BigDecimal total = order.getItems().stream()
-            .map(OrderItem::getLineTotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        order.setTotalAmount(total);
-
-        BigDecimal deposit = request.depositAmount();
-        BigDecimal remaining = total.subtract(deposit).max(BigDecimal.ZERO);
-
-        if (total.compareTo(BigDecimal.ZERO) > 0 && deposit.compareTo(total) >= 0) {
-            order.setPaymentStatus(PaymentStatus.PAID);
-            order.setRemainingAmount(BigDecimal.ZERO);
-        } else {
-            order.setPaymentStatus(PaymentStatus.UNPAID);
-            order.setRemainingAmount(remaining);
-        }
+        recalculateOrderFinancials(order);
         orderRepository.save(order);
 
         return orderMapper.toResponse(
@@ -151,7 +139,7 @@ public class OrderService {
     }
 
     // ================================================================
-    // UPDATE Ă¢â‚¬â€ Shipping Status
+    // UPDATE — Shipping Status
     // ================================================================
 
     @Transactional
@@ -167,22 +155,21 @@ public class OrderService {
     @Transactional
     public OrderItemResponse updatePickedQuantity(Long orderItemId, UpdatePickedQuantityRequest request) {
         OrderItem item = orderItemRepository.findByIdWithOrderAndProduct(orderItemId)
-            .orElseThrow(() -> new ResourceNotFoundException("Chi tiĂ¡ÂºÂ¿t Ă„â€˜Ă†Â¡n hÄ‚Â ng", orderItemId));
+            .orElseThrow(() -> new ResourceNotFoundException("Chi tiết đơn hàng", orderItemId));
 
         int newPicked = request.pickedQuantity();
 
-        // Validation: khÄ‚Â´ng nhĂ¡ÂºÂ·t nhiĂ¡Â»Âu hĂ†Â¡n sĂ¡Â»â€˜ Ă„â€˜Ä‚Â£ Ă„â€˜Ă¡ÂºÂ·t
+        // Validation: không nhặt nhiều hơn số đã đặt
         if (newPicked > item.getQuantity()) {
             throw new BusinessException(
-                "SĂ¡Â»â€˜ lĂ†Â°Ă¡Â»Â£ng nhĂ¡ÂºÂ·t (%d) khÄ‚Â´ng Ă„â€˜Ă†Â°Ă¡Â»Â£c vĂ†Â°Ă¡Â»Â£t quÄ‚Â¡ sĂ¡Â»â€˜ lĂ†Â°Ă¡Â»Â£ng Ă„â€˜Ă¡ÂºÂ·t (%d) cho sĂ¡ÂºÂ£n phĂ¡ÂºÂ©m '%s'"
+                "Số lượng nhặt (%d) không được vượt quá số lượng đặt (%d) cho sản phẩm '%s'"
                     .formatted(newPicked, item.getQuantity(), item.getProduct().getProductName())
             );
         }
 
-        // CĂ¡ÂºÂ­p nhĂ¡ÂºÂ­t trĂ¡Â»Â±c tiĂ¡ÂºÂ¿p qua JPQL UPDATE (khÄ‚Â´ng load cĂ¡ÂºÂ£ collection)
         if (newPicked < item.getShippedQuantity()) {
             throw new BusinessException(
-                "Sá»‘ lÆ°á»£ng Ä‘Ă£ láº¥y (%d) khĂ´ng Ä‘Æ°á»£c nhá» hÆ¡n sá»‘ lÆ°á»£ng Ä‘Ă£ gá»­i (%d) cho sáº£n pháº©m '%s'"
+                "Số lượng đã lấy (%d) không được nhỏ hơn số lượng đã gửi (%d) cho sản phẩm '%s'"
                     .formatted(newPicked, item.getShippedQuantity(), item.getProduct().getProductName())
             );
         }
@@ -198,13 +185,13 @@ public class OrderService {
     @Transactional
     public OrderItemResponse updateShippedQuantity(Long orderItemId, UpdateShippedQuantityRequest request) {
         OrderItem item = orderItemRepository.findByIdWithOrderAndProduct(orderItemId)
-            .orElseThrow(() -> new ResourceNotFoundException("Chi tiáº¿t Ä‘Æ¡n hĂ ng", orderItemId));
+            .orElseThrow(() -> new ResourceNotFoundException("Chi tiết đơn hàng", orderItemId));
 
         int newShipped = request.shippedQuantity();
 
         if (newShipped > item.getQuantity()) {
             throw new BusinessException(
-                "Sá»‘ lÆ°á»£ng gá»­i (%d) khĂ´ng Ä‘Æ°á»£c vÆ°á»£t quĂ¡ sá»‘ lÆ°á»£ng Ä‘áº·t (%d) cho sáº£n pháº©m '%s'"
+                "Số lượng gửi (%d) không được vượt quá số lượng đặt (%d) cho sản phẩm '%s'"
                     .formatted(newShipped, item.getQuantity(), item.getProduct().getProductName())
             );
         }
@@ -212,7 +199,6 @@ public class OrderService {
         orderItemRepository.updateShippedQuantity(orderItemId, newShipped);
         item.setShippedQuantity(newShipped);
 
-        // TĂ¡i tĂ­nh ShippingStatus cá»§a Ä‘Æ¡n hĂ ng cha
         recalculateShippingStatusById(item.getOrder().getId());
 
         return orderMapper.toItemResponse(item);
@@ -225,18 +211,25 @@ public class OrderService {
     @Transactional
     public void deleteOrder(Long id) {
         if (!orderRepository.existsById(id)) {
-            throw new ResourceNotFoundException("ÄÆ¡n hĂ ng", id);
+            throw new ResourceNotFoundException("Đơn hàng", id);
         }
         orderRepository.deleteById(id);
     }
 
     void recalculateOrderFinancials(Order order) {
-        // total = SUM(qty * unitPrice) trĂªn táº¥t cáº£ items
         BigDecimal total = order.getItems().stream()
             .map(OrderItem::getLineTotal)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        BigDecimal totalCost = order.getItems().stream()
+            .map(OrderItem::getLineCostTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal profit = total.subtract(totalCost);
+
         order.setTotalAmount(total);
+        order.setTotalCostAmount(totalCost);
+        order.setProfitAmount(profit);
 
         BigDecimal deposit = order.getDepositAmount() != null
             ? order.getDepositAmount() : BigDecimal.ZERO;
@@ -273,7 +266,7 @@ public class OrderService {
         PickupStatus newStatus = computePickupStatus(totalQty, totalPicked);
 
         Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new ResourceNotFoundException("ÄÆ¡n hĂ ng", orderId));
+            .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng", orderId));
         order.setPickupStatus(newStatus);
         orderRepository.save(order);
     }
@@ -288,9 +281,8 @@ public class OrderService {
         }
     }
 
-
     // ================================================================
-    // UPDATE â€” Payment Status (cáº­p nháº­t tráº¡ng thĂ¡i thanh toĂ¡n)
+    // UPDATE — Payment Status
     // ================================================================
 
     @Transactional
@@ -310,16 +302,16 @@ public class OrderService {
     }
 
     // ================================================================
-    // UPDATE â€” Order Item (chinh sa san pham/so luong/don gia)
+    // UPDATE — Order Item (chỉnh sửa sản phẩm / số lượng / giá bán / giá gốc)
     // ================================================================
 
     @Transactional
     public OrderResponse updateOrderItem(Long orderItemId, UpdateOrderItemRequest request) {
         OrderItem item = orderItemRepository.findByIdWithOrderAndProduct(orderItemId)
-            .orElseThrow(() -> new ResourceNotFoundException("Chi tiet don hang", orderItemId));
+            .orElseThrow(() -> new ResourceNotFoundException("Chi tiết đơn hàng", orderItemId));
 
         Product product = productRepository.findById(request.productId())
-            .orElseThrow(() -> new ResourceNotFoundException("San pham", request.productId()));
+            .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", request.productId()));
 
         int newQty = request.quantity();
         int newPicked  = Math.min(item.getPickedQuantity(),  newQty);
@@ -328,6 +320,7 @@ public class OrderService {
         item.setProduct(product);
         item.setQuantity(newQty);
         item.setUnitPrice(request.unitPrice());
+        item.setCostPrice(request.costPrice() != null ? request.costPrice() : BigDecimal.ZERO);
         item.setPickedQuantity(newPicked);
         item.setShippedQuantity(newShipped);
         orderItemRepository.save(item);
@@ -344,19 +337,20 @@ public class OrderService {
     }
 
     // ================================================================
-    // CREATE â€” Them san pham vao don hang dang co
+    // CREATE — Thêm sản phẩm vào đơn hàng đang có
     // ================================================================
 
     @Transactional
     public OrderResponse addOrderItem(Long orderId, OrderItemRequest request) {
         Order order = findOrderWithItemsOrThrow(orderId);
         Product product = productRepository.findById(request.productId())
-            .orElseThrow(() -> new ResourceNotFoundException("San pham", request.productId()));
+            .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", request.productId()));
 
         OrderItem item = OrderItem.builder()
             .product(product)
             .quantity(request.quantity())
             .unitPrice(request.unitPrice())
+            .costPrice(request.costPrice() != null ? request.costPrice() : BigDecimal.ZERO)
             .pickedQuantity(0)
             .shippedQuantity(0)
             .build();
@@ -373,19 +367,19 @@ public class OrderService {
     }
 
     // ================================================================
-    // DELETE â€” Xoa dong san pham khoi don hang
+    // DELETE — Xóa dòng sản phẩm khỏi đơn hàng
     // ================================================================
 
     @Transactional
     public OrderResponse deleteOrderItem(Long orderItemId) {
         OrderItem item = orderItemRepository.findByIdWithOrderAndProduct(orderItemId)
-            .orElseThrow(() -> new ResourceNotFoundException("Chi tiet don hang", orderItemId));
+            .orElseThrow(() -> new ResourceNotFoundException("Chi tiết đơn hàng", orderItemId));
 
         Long orderId = item.getOrder().getId();
         Order order = findOrderWithItemsOrThrow(orderId);
 
         if (order.getItems().size() <= 1) {
-            throw new BusinessException("Don hang phai co it nhat mot san pham.");
+            throw new BusinessException("Đơn hàng phải có ít nhất một sản phẩm.");
         }
 
         order.getItems().removeIf(i -> i.getId().equals(orderItemId));
@@ -399,14 +393,15 @@ public class OrderService {
         );
     }
 
-    /** Tinh lai shippingStatus tu items da load trong memory. */
+    /** Tính lại shippingStatus từ items đã load trong memory. */
     void recalculateShippingStatus(Order order) {
-        java.util.List<OrderItem> items = order.getItems();
+        List<OrderItem> items = order.getItems();
         if (items.isEmpty()) return;
         int totalQty     = items.stream().mapToInt(OrderItem::getQuantity).sum();
         int totalShipped = items.stream().mapToInt(i -> i.getShippedQuantity() != null ? i.getShippedQuantity() : 0).sum();
         order.setShippingStatus(computeShippingStatus(totalQty, totalShipped));
     }
+
     void recalculateShippingStatusById(Long orderId) {
         List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
         if (items.isEmpty()) return;
@@ -417,7 +412,7 @@ public class OrderService {
         ShippingStatus newStatus = computeShippingStatus(totalQty, totalShipped);
 
         Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new ResourceNotFoundException("ÄÆ¡n hĂ ng", orderId));
+            .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng", orderId));
         order.setShippingStatus(newStatus);
         orderRepository.save(order);
     }
@@ -434,8 +429,6 @@ public class OrderService {
 
     private Order findOrderWithItemsOrThrow(Long orderId) {
         return orderRepository.findByIdWithItemsAndCustomer(orderId)
-            .orElseThrow(() -> new ResourceNotFoundException("Ă„ÂĂ†Â¡n hÄ‚Â ng", orderId));
+            .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng", orderId));
     }
 }
-
-

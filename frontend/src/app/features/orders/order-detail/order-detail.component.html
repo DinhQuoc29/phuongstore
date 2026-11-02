@@ -38,7 +38,7 @@
               <a class="selected-card__sub link" [href]="'tel:' + o.customerPhone">{{ o.customerPhone }}</a>
             }
             @if (o.customerFacebookUrl) {
-              <a class="selected-card__sub link fb" [href]="o.customerFacebookUrl" target="_blank" rel="noopener">Facebook</a>
+              <a class="selected-card__sub link fb" [href]="o.customerFacebookUrl" target="_blank" rel="noopener">Link liên hệ</a>
             }
             @if (o.customerAddress) {
               <span class="selected-card__sub">{{ o.customerAddress }}</span>
@@ -122,8 +122,13 @@
                 </div>
               </div>
               <div class="field-group">
-                <label class="field-label">Đơn giá (VND)</label>
-                <input class="field-input" type="number" min="0" placeholder="0"
+                <label class="field-label">Giá gốc (VND)</label>
+                <input class="field-input text-right" type="number" min="0" placeholder="0"
+                  [ngModel]="addCostPrice()" (ngModelChange)="addCostPrice.set(+$event)" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Giá bán (VND)</label>
+                <input class="field-input text-right" type="number" min="0" placeholder="0"
                   [ngModel]="addPrice()" (ngModelChange)="addPrice.set(+$event)" />
               </div>
             </div>
@@ -166,11 +171,17 @@
                   </div>
                 </div>
 
-                <!-- Stats grid: 4 uniform columns -->
+                <!-- Stats grid: 5 columns -->
                 <div class="line-stats-grid">
-                  <!-- Đơn giá -->
+                  <!-- Giá gốc -->
                   <div class="stat-cell">
-                    <span class="stat-label">Đơn giá</span>
+                    <span class="stat-label">Giá gốc</span>
+                    <span class="stat-val stat-val--cost">{{ formatCurrency(item.costPrice || 0) }}</span>
+                  </div>
+
+                  <!-- Giá bán -->
+                  <div class="stat-cell">
+                    <span class="stat-label">Giá bán</span>
                     <span class="stat-val">{{ formatCurrency(item.unitPrice) }}</span>
                   </div>
 
@@ -237,10 +248,18 @@
                   </div>
                 </div>
 
-                <!-- Thành tiền -->
+                <!-- Thành tiền & Tiền lời -->
                 <div class="line-total-row">
-                  <span class="line-total-label">Thành tiền</span>
-                  <span class="line-total-val">{{ formatCurrency(item.lineTotal) }}</span>
+                  <div class="line-profit-box">
+                    <span class="line-profit-title">Tiền lời:</span>
+                    <span class="line-profit-num" [class.val--green]="(item.unitPrice - (item.costPrice || 0)) >= 0" [class.val--amber]="(item.unitPrice - (item.costPrice || 0)) < 0">
+                      {{ (item.unitPrice - (item.costPrice || 0)) >= 0 ? '+' : '' }}{{ formatCurrency((item.unitPrice - (item.costPrice || 0)) * item.quantity) }}
+                    </span>
+                  </div>
+                  <div class="line-total-box">
+                    <span class="line-total-label">Thành tiền bán:</span>
+                    <span class="line-total-val">{{ formatCurrency(item.lineTotal) }}</span>
+                  </div>
                 </div>
 
               } @else {
@@ -295,7 +314,13 @@
                       </div>
                     </div>
                     <div class="field-group">
-                      <label class="field-label">Đơn giá (VND)</label>
+                      <label class="field-label">Giá gốc (VND)</label>
+                      <input class="field-input" type="number" min="0"
+                        [ngModel]="item.editCostPrice"
+                        (ngModelChange)="editableItems.update(items => items.map(i => i.id === item.id ? {...i, editCostPrice: +$event} : i))" />
+                    </div>
+                    <div class="field-group">
+                      <label class="field-label">Giá bán (VND)</label>
                       <input class="field-input" type="number" min="0"
                         [ngModel]="item.editPrice"
                         (ngModelChange)="editableItems.update(items => items.map(i => i.id === item.id ? {...i, editPrice: +$event} : i))" />
@@ -336,13 +361,25 @@
         </div>
       </section>
 
-      <!-- ═══════ SECTION 3: THANH TOÁN ═══════ -->
+      <!-- ═══════ SECTION 3: THANH TOÁN & TIỀN LỜI ═══════ -->
       <section class="summary-card">
-        <h2 class="step-title" style="margin-bottom:16px">Thanh toán</h2>
+        <h2 class="step-title" style="margin-bottom:16px">Thanh toán & Tiền lời</h2>
 
         <div class="summary-row">
-          <span class="summary-label">Tổng tiền hàng ({{ editableItems().length }} sản phẩm)</span>
+          <span class="summary-label">Tổng giá bán ({{ editableItems().length }} sản phẩm)</span>
           <span class="summary-val">{{ formatCurrency(totalAmount()) }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Tổng giá gốc</span>
+          <span class="summary-val summary-val--cost">{{ formatCurrency(totalCostAmount()) }}</span>
+        </div>
+        <div class="summary-row summary-row--profit">
+          <span class="summary-label summary-label--profit">Tổng tiền lời</span>
+          <span class="summary-val summary-val--profit"
+                [class.summary-val--profit-pos]="profitAmount() >= 0"
+                [class.summary-val--profit-neg]="profitAmount() < 0">
+            {{ profitAmount() >= 0 ? '+' : '' }}{{ formatCurrency(profitAmount()) }}
+          </span>
         </div>
         @if (!editingDeposit()) {
           <div class="summary-row summary-row--deposit">

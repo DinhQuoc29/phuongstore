@@ -10,7 +10,7 @@ public record CustomerRequest(
     @Size(max = 150, message = "Há» tĂªn khĂ´ng Ä‘Æ°á»£c vÆ°á»£t quĂ¡ 150 kĂ½ tá»±")
     String fullName,
 
-    @Size(max = 500, message = "URL Facebook khĂ´ng Ä‘Æ°á»£c vÆ°á»£t quĂ¡ 500 kĂ½ tá»±")
+    @Size(max = 500, message = "Link liên hệ không được vượt quá 500 ký tự")
     String facebookUrl,
 
     @Pattern(regexp = "^(\\+84|0)[0-9]{8,10}$", message = "Sá»‘ Ä‘iá»‡n thoáº¡i khĂ´ng há»£p lá»‡ (VD: 0901234567)")

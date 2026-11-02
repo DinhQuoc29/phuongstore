@@ -45,7 +45,7 @@
           <tr>
             <th class="col-stt">STT</th>
             <th class="col-name">Họ và tên</th>
-            <th class="col-fb">Facebook</th>
+            <th class="col-fb">Link liên hệ</th>
             <th class="col-phone">Số điện thoại</th>
             <th class="col-addr">Địa chỉ</th>
             <th class="col-action">Thao tác</th>
@@ -84,7 +84,7 @@
               @if (c.facebookUrl) {
               <a class="fb-link" [href]="c.facebookUrl" target="_blank" rel="noopener noreferrer"
                 title="{{ c.facebookUrl }}">
-                <span class="fb-icon">f</span>
+                <span class="fb-icon">🔗</span>
                 <span class="fb-name">{{ facebookDisplay(c.facebookUrl) }}</span>
               </a>
               } @else {
@@ -176,8 +176,8 @@
         </div>
         <!-- Facebook -->
         <div class="form-group">
-          <label class="form-label">Facebook URL</label>
-          <input id="form-facebook" class="form-input" placeholder="https://facebook.com/ten-khach"
+          <label class="form-label">Link liên hệ (Facebook, Zalo, Instagram...)</label>
+          <input id="form-facebook" class="form-input" placeholder="https://... (Facebook, Zalo, Instagram)"
             [ngModel]="formFacebook()" (ngModelChange)="formFacebook.set($event)" />
         </div>
         <!-- Địa chỉ -->
