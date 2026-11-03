@@ -1,4 +1,4 @@
-﻿<div class="order-page">
+<div class="order-page">
 
   <!-- Header -->
   <div class="order-header">
@@ -77,7 +77,7 @@
             </div>
             <div class="meta-row">
               <span class="meta-label">Ngày đặt</span>
-              <span class="meta-val">{{ formatDate(o.orderDate) }}</span>
+              <span class="meta-val">{{ formatDateTime(o.createdAt || o.orderDate) }}</span>
             </div>
             <div class="meta-row">
               <span class="meta-label">Lấy hàng</span>

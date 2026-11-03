@@ -3,6 +3,7 @@ package com.example.phuongstore.order.dto;
 import com.example.phuongstore.order.enums.PaymentStatus;
 import com.example.phuongstore.order.enums.PickupStatus;
 import com.example.phuongstore.order.enums.ShippingStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,6 +36,7 @@ public record OrderResponse(
     PaymentStatus paymentStatus,
     ShippingStatus shippingStatus,
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime createdAt,
 
     // --- Items ---

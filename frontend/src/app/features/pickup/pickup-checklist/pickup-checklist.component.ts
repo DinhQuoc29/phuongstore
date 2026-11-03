@@ -340,12 +340,7 @@ export class PickupChecklistComponent implements OnInit {
   }
 
   readonly filteredChecklist = computed(() => {
-    let list = this.checklist();
-
-    if (this.showOnlyPending()) {
-      list = list.filter(c => c.totalPicked < c.totalNeeded);
-    }
-
+    const list = this.checklist();
     const kw = this.searchKeyword().toLowerCase().trim();
     if (!kw) return list;
 
@@ -359,11 +354,6 @@ export class PickupChecklistComponent implements OnInit {
       return matchName || matchCode || matchCustomer;
     });
   });
-
-  togglePendingFilter(): void {
-    this.showOnlyPending.update(v => !v);
-    this.currentPickupPage.set(0);
-  }
 
   stepPickedQuantity(allocation: PickupAllocationItem, card: PickupProductCard, delta: number): void {
     const newValue = Math.max(0, Math.min(allocation.pickedQuantity + delta, allocation.quantity));
@@ -381,13 +371,17 @@ export class PickupChecklistComponent implements OnInit {
                   ? { ...a, pickedQuantity: updatedItem.pickedQuantity }
                   : a
               );
+              const newTotalPicked = updatedAllocations.reduce((s, a) => s + a.pickedQuantity, 0);
               return {
                 ...c,
-                totalPickedQuantity: updatedAllocations.reduce((s, a) => s + a.pickedQuantity, 0),
+                totalPicked: newTotalPicked,
                 allocations: updatedAllocations
               };
             })
           );
+          if (newValue === allocation.quantity) {
+            this.toast.success(`Đã lấy đủ cho ${allocation.customerName}`);
+          }
           this.updatingItems.update(set => {
             const next = new Set(set);
             next.delete(allocation.orderItemId);

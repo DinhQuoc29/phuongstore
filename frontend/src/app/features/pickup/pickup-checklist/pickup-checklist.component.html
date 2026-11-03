@@ -1,4 +1,4 @@
-﻿<div class="page-container pickup-page">
+<div class="page-container pickup-page">
 
   <!-- ============================================================
        HEADER — Tổng quan tiến độ gom hàng
@@ -20,7 +20,7 @@
         @if (loading()) {
           <span class="spinner"></span>
         } @else {
-          🔄
+          <i class="fa-solid fa-arrows-rotate"></i>
         }
       </button>
     </div>
@@ -56,22 +56,11 @@
           [ngModel]="searchKeyword()"
           (ngModelChange)="onSearch($event)" />
         @if (searchKeyword()) {
-          <button class="search-clear-btn" (click)="clearSearch()" title="Xóa tìm kiếm">✕</button>
+          <button class="search-clear-btn" (click)="clearSearch()" title="Xóa tìm kiếm">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
         }
       </div>
-
-      <!-- Filter toggle -->
-      <button
-        class="btn btn--ghost filter-btn"
-        [class.filter-btn--active]="showOnlyPending()"
-        (click)="togglePendingFilter()"
-      >
-        @if (showOnlyPending()) {
-          <span>👁️ Tất cả</span>
-        } @else {
-          <span>⏳ Chưa xong ({{ checklist().length - completedCards() }})</span>
-        }
-      </button>
     </div>
   }
 
@@ -100,7 +89,9 @@
        ============================================================ -->
   @if (!loading() && checklist().length === 0) {
     <div class="empty-state">
-      <div class="empty-state__icon">🎉</div>
+      <div class="empty-state__icon">
+        <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 48px;"></i>
+      </div>
       <h2 class="empty-state__title">Tất cả đã nhặt xong!</h2>
       <p class="empty-state__desc">Không còn đơn hàng nào cần gom hàng.</p>
     </div>
@@ -108,10 +99,14 @@
 
   @if (!loading() && checklist().length > 0 && filteredChecklist().length === 0) {
     <div class="empty-state">
-      <div class="empty-state__icon">🔍</div>
+      <div class="empty-state__icon">
+        <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 40px;"></i>
+      </div>
       <h2 class="empty-state__title">Không tìm thấy sản phẩm</h2>
       <p class="empty-state__desc">Không có kết quả nào phù hợp với từ khóa "{{ searchKeyword() }}".</p>
-      <button class="btn btn--ghost" (click)="clearSearch()" style="margin-top: 12px">✕ Xóa tìm kiếm</button>
+      <button class="btn btn--ghost" (click)="clearSearch()" style="margin-top: 12px">
+        <i class="fa-solid fa-xmark"></i> Xóa tìm kiếm
+      </button>
     </div>
   }
 
@@ -148,7 +143,7 @@
                       <img [src]="card.imageUrl" [alt]="card.productName" class="thumb-img" loading="lazy"
                            (error)="$any($event.target).style.display='none'" />
                     }
-                    <span class="thumb-fallback">📦</span>
+                    <span class="thumb-fallback"><i class="fa-solid fa-box" style="color: #94a3b8;"></i></span>
                   </div>
                 </td>
 
@@ -169,7 +164,7 @@
                       </div>
                     </div>
                     <span class="progress-label" [class]="getProgressClass(card)">
-                      {{ getStatusEmoji(card) }} <strong>{{ card.totalPicked }}</strong>/{{ card.totalNeeded }}
+                      <strong>{{ card.totalPicked }}</strong>/{{ card.totalNeeded }}
                     </span>
                   </div>
                 </td>
@@ -178,7 +173,11 @@
                 <td class="col-action">
                   <button class="btn-expand" (click)="toggleCard(card.productId)"
                     [class.btn-expand--active]="isExpanded(card.productId)">
-                    {{ isExpanded(card.productId) ? '▲ Thu lại' : '▼ Xem KH' }}
+                    @if (isExpanded(card.productId)) {
+                      <i class="fa-solid fa-chevron-up"></i> Thu lại
+                    } @else {
+                      <i class="fa-solid fa-chevron-down"></i> Xem KH
+                    }
                   </button>
                 </td>
               </tr>
@@ -208,7 +207,9 @@
                               <td>
                                 @if (alloc.customerPhone) {
                                   <a class="alloc-phone" [href]="'tel:' + alloc.customerPhone"
-                                    (click)="$event.stopPropagation()">{{ alloc.customerPhone }}</a>
+                                    (click)="$event.stopPropagation()">
+                                    <i class="fa-solid fa-phone" style="font-size: 11px; margin-right: 4px;"></i>{{ alloc.customerPhone }}
+                                  </a>
                                 } @else {
                                   <span class="empty-val">—</span>
                                 }
@@ -231,7 +232,9 @@
                                       <button type="button" class="btn-step btn-step--minus"
                                               [disabled]="alloc.pickedQuantity <= 0"
                                               (click)="stepPickedQuantity(alloc, card, -1)"
-                                              title="Giảm 1">">−</button>
+                                              title="Giảm 1">
+                                        <i class="fa-solid fa-minus"></i>
+                                      </button>
                                       <input
                                         type="number"
                                         class="qty-input"
@@ -245,11 +248,15 @@
                                       <button type="button" class="btn-step btn-step--plus"
                                               [disabled]="alloc.pickedQuantity >= alloc.quantity"
                                               (click)="stepPickedQuantity(alloc, card, 1)"
-                                              title="Tăng 1">+</button>
+                                              title="Tăng 1">
+                                        <i class="fa-solid fa-plus"></i>
+                                      </button>
                                       @if (alloc.pickedQuantity < alloc.quantity) {
                                         <button type="button" class="btn-step-done"
                                                 (click)="stepPickedQuantity(alloc, card, alloc.quantity - alloc.pickedQuantity)"
-                                                title="Lấy đủ số lượng">Đủ</button>
+                                                title="Lấy đủ số lượng">
+                                          <i class="fa-solid fa-check"></i> Đủ
+                                        </button>
                                       }
                                     </div>
                                   }
@@ -272,14 +279,18 @@
       @if (totalPickupPages() > 1) {
         <div class="pagination">
           <button class="btn btn--ghost btn-sm" [disabled]="currentPickupPage() === 0"
-            (click)="changePickupPage(currentPickupPage() - 1)">‹ Trước</button>
+            (click)="changePickupPage(currentPickupPage() - 1)">
+            <i class="fa-solid fa-chevron-left"></i> Trước
+          </button>
           @for (p of pickupPages(); track p) {
             <button class="btn btn--ghost btn-sm"
               [class.pagination__btn--active]="currentPickupPage() === p"
               (click)="changePickupPage(p)">{{ p + 1 }}</button>
           }
           <button class="btn btn--ghost btn-sm" [disabled]="currentPickupPage() >= totalPickupPages() - 1"
-            (click)="changePickupPage(currentPickupPage() + 1)">Sau ›</button>
+            (click)="changePickupPage(currentPickupPage() + 1)">
+            Sau <i class="fa-solid fa-chevron-right"></i>
+          </button>
         </div>
       }
     </div>

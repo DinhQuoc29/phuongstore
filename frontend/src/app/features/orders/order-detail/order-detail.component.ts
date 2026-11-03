@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject, input, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, input, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -494,6 +494,26 @@ export class OrderDetailComponent implements OnInit {
 
   formatDate(d: string): string {
     return new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  formatDateTime(dateStr?: string | null): string {
+    if (!dateStr) return '';
+    const normalized = dateStr.includes(' ') ? dateStr.replace(' ', 'T') : dateStr;
+    const d = new Date(normalized);
+    if (isNaN(d.getTime())) return dateStr;
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+
+    const hasTime = dateStr.includes('T') || dateStr.includes(':');
+    if (!hasTime) {
+      return `${day}/${month}/${year}`;
+    }
+
+    const hours = String(d.getHours()).padStart(2, '0');
+    const mins = String(d.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} - ${hours}:${mins}`;
   }
 
   readonly setTimeout = (fn: () => void, ms: number) => window.setTimeout(fn, ms);

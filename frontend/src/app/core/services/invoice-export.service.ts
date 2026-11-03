@@ -54,7 +54,7 @@ export class InvoiceExportService {
     // Tên thương hiệu
     ctx.font = 'bold 22px "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('LYGIAHAN', logicalWidth / 2, y);
+    ctx.fillText('HATHITHUPHUONG', logicalWidth / 2, y);
     y += 36;
 
     // Tiêu đề HÓA ĐƠN BÁN HÀNG
@@ -66,7 +66,7 @@ export class InvoiceExportService {
     ctx.font = '500 17px "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif';
     ctx.textAlign = 'left';
 
-    const formattedDate = this.formatDate(order.orderDate || order.createdAt);
+    const formattedDate = this.formatDate(order.createdAt || order.orderDate);
     const labelX = paddingX;
     const valX = paddingX + 90;
 
@@ -85,14 +85,12 @@ export class InvoiceExportService {
     // ─── 2. Tiêu đề bảng sản phẩm ───
     ctx.font = 'bold 18px "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif';
     const colSlX = paddingX;
-    const colDgX = paddingX + 90;
-    const colCkX = paddingX + 260;
+    const colDgX = paddingX + 180;
     const colTotalX = logicalWidth - paddingX;
 
     ctx.textAlign = 'left';
     ctx.fillText('SL', colSlX, y);
     ctx.fillText('ĐG', colDgX, y);
-    ctx.fillText('CK', colCkX, y);
 
     ctx.textAlign = 'right';
     ctx.fillText('T.Tiền', colTotalX, y);
@@ -120,12 +118,11 @@ export class InvoiceExportService {
       }
       y += 2;
 
-      // Dòng 2: SL, ĐG, CK, T.Tiền
+      // Dòng 2: SL, ĐG, T.Tiền
       ctx.font = '400 17px "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(String(item.quantity), colSlX, y);
       ctx.fillText(this.formatCurrency(item.unitPrice), colDgX, y);
-      ctx.fillText('0', colCkX, y);
 
       ctx.textAlign = 'right';
       ctx.fillText(this.formatCurrency(item.lineTotal || (item.quantity * item.unitPrice)), colTotalX, y);
@@ -155,21 +152,19 @@ export class InvoiceExportService {
     this.drawSummaryRow(ctx, 'Tổng tiền hàng', this.formatCurrency(order.totalAmount), paddingX, colTotalX, y);
     y += 32;
 
-    // Chiết khấu
-    this.drawSummaryRow(ctx, 'Chiết khấu', '0', paddingX, colTotalX, y);
+    // Tiền cọc
+    const depositText = (order.depositAmount && order.depositAmount > 0)
+      ? this.formatCurrency(order.depositAmount)
+      : '0';
+    this.drawSummaryRow(ctx, 'Tiền cọc', depositText, paddingX, colTotalX, y);
     y += 36;
 
-    // Khách phải trả (chữ to, bold)
+    // Còn lại thanh toán (chữ to, bold)
     ctx.font = 'bold 22px "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif';
-    this.drawSummaryRow(ctx, 'Khách phải trả', this.formatCurrency(order.totalAmount), paddingX, colTotalX, y);
-    y += 38;
-
-    // Chưa thanh toán
-    ctx.font = '500 18px "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif';
     const remainingText = order.remainingAmount > 0
       ? this.formatCurrency(order.remainingAmount)
       : '0';
-    this.drawSummaryRow(ctx, 'Chưa thanh toán', remainingText, paddingX, colTotalX, y);
+    this.drawSummaryRow(ctx, 'Còn lại thanh toán', remainingText, paddingX, colTotalX, y);
     y += 38;
 
     // Đường kẻ trước footer
@@ -252,18 +247,25 @@ export class InvoiceExportService {
     if (items.length === 0) height += 30;
 
     height += 4 + 22; // Divider
-    height += 32 + 32 + 36 + 38 + 38 + 32 + 32 + 45; // Summary + Footer + Bottom padding
+    height += 32 + 32 + 36 + 38 + 32 + 32 + 45; // Summary + Footer + Bottom padding
     return Math.max(height, 500);
   }
 
   private formatDate(dateStr?: string | null): string {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
+    const normalized = dateStr.includes(' ') ? dateStr.replace(' ', 'T') : dateStr;
+    const d = new Date(normalized);
     if (isNaN(d.getTime())) return dateStr;
 
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
+
+    const hasTime = dateStr.includes('T') || dateStr.includes(':');
+    if (!hasTime) {
+      return `${day}/${month}/${year}`;
+    }
+
     const hours = String(d.getHours()).padStart(2, '0');
     const mins = String(d.getMinutes()).padStart(2, '0');
 
