@@ -174,7 +174,7 @@ export class InvoiceExportService {
     // ─── 5. Footer ───
     ctx.font = 'bold 18px "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('THANK YOU FOR CHOOSING US  🤍', logicalWidth / 2, y);
+    ctx.fillText('Cảm ơn bạn đã tin tưởng ủng hộ shop ạ ❤️', logicalWidth / 2, y);
 
     return canvas;
   }
