@@ -1,23 +1,46 @@
 /* ============================================================
    App Shell — Navigation Bar
-   Clean top nav on desktop, bottom tab bar on mobile
+   Clean top nav on desktop, split topbar + bottom bar on mobile
    ============================================================ */
 
-/* ─── Bottom Tab Bar (mobile-first) ─── */
+/* ─── Mobile Top Bar (< 768px) ─── */
+.mobile-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 var(--space-4);
+  z-index: 100;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.desktop-only {
+  display: none !important;
+}
+
+/* ─── Bottom Tab Bar (mobile-first, < 768px) ─── */
 .navbar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: var(--nav-height);
+  height: calc(58px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: #FFFFFF;
   border-top: 1px solid var(--color-border);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--space-4);
+  justify-content: center;
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
   z-index: 100;
-  box-shadow: 0 -1px 0 var(--color-border);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* Brand */
@@ -31,38 +54,35 @@
 .navbar__logo {
   font-size: 18px;
   line-height: 1;
+  color: var(--blue-600);
 }
 
 .navbar__name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-text-primary);
   white-space: nowrap;
-  display: none;
 }
 
-@media (min-width: 400px) {
-  .navbar__name { display: block; }
-}
-
-/* Nav links */
+/* Nav links on mobile: 4 tabs distributed evenly */
 .navbar__links {
-  display: flex;
-  align-items: center;
-  gap: 2px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  gap: 4px;
 }
 
 .navbar__link {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: var(--space-2) var(--space-3);
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 4px;
   border-radius: var(--radius-md);
   text-decoration: none;
   color: var(--color-text-muted);
-  transition: color var(--transition-fast), background var(--transition-fast);
-  min-width: 52px;
+  transition: all var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -77,48 +97,46 @@
 }
 
 .navbar__link-icon {
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.navbar__link-img {
-  width: 19px;
-  height: 19px;
-  object-fit: contain;
-  display: block;
-  opacity: 0.65;
-}
-
-.navbar__link--active .navbar__link-img {
-  opacity: 1;
-  filter: invert(29%) sepia(99%) saturate(1277%) hue-rotate(210deg) brightness(97%);
-}
-
 .navbar__link-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.1px;
+  white-space: nowrap;
 }
 
 /* Main content */
 .app-main {
-  padding-bottom: calc(var(--nav-height) + var(--space-4));
+  padding-top: calc(52px + var(--space-3));
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + var(--space-4));
   min-height: 100vh;
 }
 
-/* ─── Desktop: Top Navigation Bar ─── */
+/* ─── Desktop View (>= 768px) ─── */
 @media (min-width: 768px) {
+  .mobile-topbar {
+    display: none !important;
+  }
+
+  .desktop-only {
+    display: flex !important;
+  }
+
   .navbar {
     top: 0;
     bottom: auto;
-    height: var(--nav-height);
+    height: var(--nav-height, 56px);
     border-top: none;
     border-bottom: 1px solid var(--color-border);
     box-shadow: var(--shadow-xs);
     padding: 0 var(--space-6);
+    justify-content: space-between;
   }
 
   .navbar__name {
@@ -128,17 +146,22 @@
     letter-spacing: -0.2px;
   }
 
-  .navbar__links { gap: 2px; }
+  .navbar__links {
+    display: flex;
+    width: auto;
+    gap: 4px;
+  }
 
   .navbar__link {
     flex-direction: row;
     gap: var(--space-2);
-    min-width: auto;
-    padding: 6px 12px;
+    width: auto;
+    padding: 6px 14px;
   }
 
-  .navbar__link-icon { font-size: 15px; }
-  .navbar__link-img  { width: 16px; height: 16px; }
+  .navbar__link-icon {
+    font-size: 15px;
+  }
 
   .navbar__link-label {
     font-size: var(--font-size-sm);
@@ -146,14 +169,15 @@
     letter-spacing: 0;
   }
 
-  .navbar__link--active .navbar__link-label { font-weight: 600; }
+  .navbar__link--active .navbar__link-label {
+    font-weight: 600;
+  }
 
   .app-main {
+    padding-top: calc(var(--nav-height, 56px) + var(--space-4));
     padding-bottom: var(--space-8);
-    padding-top: var(--nav-height);
   }
 }
-
 
 /* ─── App Main Fullscreen (e.g. Login page) ─── */
 .app-main--full {
@@ -161,50 +185,27 @@
   margin: 0 !important;
 }
 
-/* ─── User Profile & Logout in Navbar ─── */
+/* ─── User Profile & Logout ─── */
 .navbar__user {
   display: flex;
   align-items: center;
   gap: var(--space-2);
 }
 
-.navbar__user-info {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: var(--color-bg-subtle, #f1f5f9);
-  border-radius: var(--radius-full, 9999px);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-primary, #0f172a);
-}
-
-.navbar__user-avatar {
-  font-size: 14px;
-}
-
-.navbar__user-name {
-  max-width: 130px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .navbar__btn-logout {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px 10px;
   background: transparent;
   color: #dc2626;
-  border: 1px solid #fecaca;
-  border-radius: var(--radius-md, 8px);
-  font-family: inherit;
+  border: 1px solid #fee2e2;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .navbar__btn-logout:hover {
@@ -214,24 +215,10 @@
 }
 
 .navbar__logout-icon {
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1;
 }
 
 .navbar__logout-text {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .navbar__user-info {
-    display: inline-flex;
-  }
-
-  .navbar__logout-text {
-    display: inline;
-  }
-
-  .navbar__btn-logout {
-    padding: 6px 14px;
-    font-size: 13px;
-  }
+  font-weight: 600;
 }

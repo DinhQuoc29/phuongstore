@@ -405,28 +405,37 @@ th.num-col { text-align: right; }
     gap: var(--space-2);
   }
 
-  /* Table: hide less-important columns on mobile */
-  .col-note,
-  th.col-note { display: none; }
-
-  .col-shipping,
-  th.col-shipping { display: none; }
-
-  .col-action,
-  th.col-action { display: none; }
-
-  /* Compact table cells */
-  .data-table td,
-  .data-table th {
-    padding: 8px 6px;
+  /* Table: Full horizontal scroll with all columns visible */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
   }
 
-  .col-id { width: 50px; }
-  .col-date { width: 72px; }
-  .col-customer { min-width: 90px; }
-  .col-amount { width: 90px; }
-  .col-qty { width: 50px; }
-  .col-payment { width: 80px; }
+  .data-table {
+    min-width: 920px;
+    width: 100%;
+  }
+
+  /* Sticky first column (Mã đơn) */
+  .col-id,
+  th.col-id {
+    position: sticky;
+    left: 0;
+    background: #FFFFFF;
+    z-index: 2;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  }
+
+  th.col-id {
+    background: #F9FAFB;
+    z-index: 3;
+  }
+
+  .data-table td,
+  .data-table th {
+    padding: 10px 8px;
+  }
 
   .order-id { font-size: 12px; }
   .order-date { font-size: 11px; }
@@ -659,4 +668,64 @@ th.num-col { text-align: right; }
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+
+/* Stats Mobile Responsiveness */
+@media (max-width: 767px) {
+  .order-tabs {
+    gap: 4px;
+    margin-bottom: var(--space-3);
+  }
+
+  .order-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  .stats-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .stats-toolbar__group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .stats-selectors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  .stats-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .stats-btn-today {
+    grid-column: span 2;
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .stats-card {
+    padding: var(--space-4);
+  }
+
+  .stats-card--revenue .stats-card__value,
+  .stats-card--profit .stats-card__value {
+    font-size: 24px;
+  }
 }

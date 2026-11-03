@@ -226,19 +226,33 @@
                                 <div class="quantity-input-wrap">
                                   @if (isItemUpdating(alloc.orderItemId)) {
                                     <span class="spinner-sm"></span>
+                                  } @else {
+                                    <div class="pickup-stepper">
+                                      <button type="button" class="btn-step btn-step--minus"
+                                              [disabled]="alloc.pickedQuantity <= 0"
+                                              (click)="stepPickedQuantity(alloc, card, -1)"
+                                              title="Giảm 1">">−</button>
+                                      <input
+                                        type="number"
+                                        class="qty-input"
+                                        [class.qty-input--full]="alloc.pickedQuantity >= alloc.quantity"
+                                        [value]="alloc.pickedQuantity"
+                                        [min]="0"
+                                        [max]="alloc.quantity"
+                                        (change)="onPickedInputChange($event, alloc, card)"
+                                        (keydown.enter)="$any($event.target).blur()"
+                                      />
+                                      <button type="button" class="btn-step btn-step--plus"
+                                              [disabled]="alloc.pickedQuantity >= alloc.quantity"
+                                              (click)="stepPickedQuantity(alloc, card, 1)"
+                                              title="Tăng 1">+</button>
+                                      @if (alloc.pickedQuantity < alloc.quantity) {
+                                        <button type="button" class="btn-step-done"
+                                                (click)="stepPickedQuantity(alloc, card, alloc.quantity - alloc.pickedQuantity)"
+                                                title="Lấy đủ số lượng">Đủ</button>
+                                      }
+                                    </div>
                                   }
-                                  <input
-                                    type="number"
-                                    class="qty-input"
-                                    [class.qty-input--updating]="isItemUpdating(alloc.orderItemId)"
-                                    [class.qty-input--full]="alloc.pickedQuantity >= alloc.quantity"
-                                    [value]="alloc.pickedQuantity"
-                                    [min]="0"
-                                    [max]="alloc.quantity"
-                                    [disabled]="isItemUpdating(alloc.orderItemId)"
-                                    (change)="onPickedInputChange($event, alloc, card)"
-                                    (keydown.enter)="$any($event.target).blur()"
-                                  />
                                 </div>
                               </td>
                             </tr>

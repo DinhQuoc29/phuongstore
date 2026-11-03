@@ -92,6 +92,10 @@ export class OrderFormComponent implements OnInit {
     ).slice(0, 8);
   });
 
+  totalQuantity = computed(() =>
+    this.lineItems().reduce((sum, l) => sum + l.quantity, 0)
+  );
+
   totalAmount = computed(() =>
     this.lineItems().reduce((sum, l) => sum + l.quantity * l.unitPrice, 0)
   );

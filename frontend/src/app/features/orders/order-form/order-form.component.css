@@ -1147,3 +1147,55 @@
     gap: var(--space-2);
   }
 }
+
+/* ─── Mobile Sticky Action Bar ─── */
+.mobile-sticky-action {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-sticky-action {
+    display: flex;
+    position: fixed;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    right: 0;
+    background: #FFFFFF;
+    border-top: 1px solid var(--color-border);
+    padding: 10px 16px;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 95;
+    box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .mobile-sticky-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-sticky-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+  }
+
+  .mobile-sticky-val {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--blue-700);
+  }
+
+  .mobile-sticky-btn {
+    height: 40px;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+  }
+
+  /* Extra space at form bottom so sticky bar does not overlap content */
+  .order-form {
+    padding-bottom: 70px;
+  }
+}

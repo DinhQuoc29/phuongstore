@@ -364,4 +364,44 @@ export class PickupChecklistComponent implements OnInit {
     this.showOnlyPending.update(v => !v);
     this.currentPickupPage.set(0);
   }
+
+  stepPickedQuantity(allocation: PickupAllocationItem, card: PickupProductCard, delta: number): void {
+    const newValue = Math.max(0, Math.min(allocation.pickedQuantity + delta, allocation.quantity));
+    if (newValue === allocation.pickedQuantity) return;
+
+    this.updatingItems.update(set => new Set(set).add(allocation.orderItemId));
+    this.orderService.updatePickedQuantity(allocation.orderItemId, { pickedQuantity: newValue })
+      .subscribe({
+        next: (updatedItem) => {
+          this.checklist.update(list =>
+            list.map(c => {
+              if (c.productId !== card.productId) return c;
+              const updatedAllocations = c.allocations.map(a =>
+                a.orderItemId === allocation.orderItemId
+                  ? { ...a, pickedQuantity: updatedItem.pickedQuantity }
+                  : a
+              );
+              return {
+                ...c,
+                totalPickedQuantity: updatedAllocations.reduce((s, a) => s + a.pickedQuantity, 0),
+                allocations: updatedAllocations
+              };
+            })
+          );
+          this.updatingItems.update(set => {
+            const next = new Set(set);
+            next.delete(allocation.orderItemId);
+            return next;
+          });
+        },
+        error: () => {
+          this.toast.error('Không thể cập nhật số lượng đã lấy');
+          this.updatingItems.update(set => {
+            const next = new Set(set);
+            next.delete(allocation.orderItemId);
+            return next;
+          });
+        }
+      });
+  }
 }

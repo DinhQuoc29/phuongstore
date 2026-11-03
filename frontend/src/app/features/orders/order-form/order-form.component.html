@@ -294,6 +294,21 @@
     </section>
 
     <!-- ═══════════════ SUBMIT ═══════════════ -->
+    <div class="mobile-sticky-action">
+      <div class="mobile-sticky-info">
+        <span class="mobile-sticky-label">Tổng ({{ totalQuantity() }} món)</span>
+        <span class="mobile-sticky-val">{{ formatCurrency(totalAmount()) }}</span>
+      </div>
+      <button class="btn-submit mobile-sticky-btn" (click)="submit()" [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="spinner spinner--sm spinner--white"></span>
+        } @else {
+          <i class="fa-solid fa-check"></i>
+        }
+        Tạo đơn
+      </button>
+    </div>
+
     <div class="form-actions">
       <a routerLink="/orders" class="btn-ghost">Hủy</a>
       <button class="btn-submit" (click)="submit()" [disabled]="submitting()">

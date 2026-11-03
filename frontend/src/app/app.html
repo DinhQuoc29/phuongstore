@@ -1,18 +1,33 @@
 @if (authService.isAuthenticated()) {
-  <nav class="navbar">
+  <!-- Top Bar on Mobile (< 768px) -->
+  <header class="mobile-topbar">
     <div class="navbar__brand">
+      <span class="navbar__logo"><i class="fa-solid fa-bag-shopping"></i></span>
+      <span class="navbar__name">Phương Store</span>
+    </div>
+    <div class="navbar__user">
+      <button type="button" class="navbar__btn-logout" (click)="onLogout()" title="Đăng xuất khỏi hệ thống">
+        <span class="navbar__logout-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
+        <span class="navbar__logout-text">Đăng xuất</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Navigation Bar (Desktop Top Nav / Mobile Bottom Nav) -->
+  <nav class="navbar">
+    <div class="navbar__brand desktop-only">
       <span class="navbar__logo"><i class="fa-solid fa-bag-shopping"></i></span>
       <span class="navbar__name">Phương Store</span>
     </div>
 
     <div class="navbar__links">
-      <a routerLink="/pickup" routerLinkActive="navbar__link--active" class="navbar__link" title="Gom hàng">
-        <span class="navbar__link-icon"><i class="fa-solid fa-boxes-packing"></i></span>
-        <span class="navbar__link-label">Gom hàng</span>
-      </a>
       <a routerLink="/orders" routerLinkActive="navbar__link--active" class="navbar__link" title="Đơn hàng">
         <span class="navbar__link-icon"><i class="fa-solid fa-receipt"></i></span>
         <span class="navbar__link-label">Đơn hàng</span>
+      </a>
+      <a routerLink="/pickup" routerLinkActive="navbar__link--active" class="navbar__link" title="Gom hàng">
+        <span class="navbar__link-icon"><i class="fa-solid fa-boxes-packing"></i></span>
+        <span class="navbar__link-label">Gom hàng</span>
       </a>
       <a routerLink="/customers" routerLinkActive="navbar__link--active" class="navbar__link" title="Khách hàng">
         <span class="navbar__link-icon"><i class="fa-solid fa-users"></i></span>
@@ -24,7 +39,7 @@
       </a>
     </div>
 
-    <div class="navbar__user">
+    <div class="navbar__user desktop-only">
       <button type="button" class="navbar__btn-logout" (click)="onLogout()" title="Đăng xuất khỏi hệ thống">
         <span class="navbar__logout-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
         <span class="navbar__logout-text">Đăng xuất</span>
