@@ -20,6 +20,7 @@ public class OrderMapper {
             product.getProductCode(),
             product.getProductName(),
             product.getImageUrl(),
+            item.getColorCode(),
             item.getQuantity(),
             item.getPickedQuantity(),
             item.getShippedQuantity(),

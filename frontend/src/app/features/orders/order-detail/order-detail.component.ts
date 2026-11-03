@@ -19,6 +19,7 @@ interface EditableItem {
   productId: number;
   productName: string;
   productCode: string;
+  colorCode?: string | null;
   quantity: number;
   pickedQuantity: number;
   shippedQuantity: number;
@@ -30,6 +31,7 @@ interface EditableItem {
   editing: boolean;
   // edit form state
   editProductSearch: string;
+  editColorCode?: string;
   editQty: number;
   editPickedQty: number;
   editCostPrice: number;
@@ -83,6 +85,7 @@ export class OrderDetailComponent implements OnInit {
   addProductSearch = signal('');
   addProductId     = signal<number | null>(null);
   addProductName   = signal('');
+  addColorCode     = signal('');
   addQty           = signal(1);
   addCostPrice     = signal(0);
   addPrice         = signal(0);
@@ -148,6 +151,7 @@ export class OrderDetailComponent implements OnInit {
       productId: i.productId,
       productName: i.productName,
       productCode: i.productCode,
+      colorCode: i.colorCode,
       quantity: i.quantity,
       pickedQuantity: i.pickedQuantity,
       shippedQuantity: i.shippedQuantity,
@@ -158,6 +162,7 @@ export class OrderDetailComponent implements OnInit {
       lineProfit: i.lineProfit ?? (i.lineTotal - (i.costPrice || 0) * i.quantity),
       editing: false,
       editProductSearch: i.productName,
+      editColorCode: i.colorCode || '',
       editQty: i.quantity,
       editPickedQty: i.pickedQuantity,
       editCostPrice: i.costPrice || 0,
@@ -358,6 +363,7 @@ export class OrderDetailComponent implements OnInit {
     const needUpdatePicked = item.editPickedQty !== undefined && item.editPickedQty !== item.pickedQuantity;
     this.orderService.updateOrderItem(item.id, {
       productId: item.editProductId,
+      colorCode: item.editColorCode?.trim() || null,
       quantity: item.editQty,
       costPrice: item.editCostPrice || 0,
       unitPrice: item.editPrice
@@ -438,6 +444,7 @@ export class OrderDetailComponent implements OnInit {
     this.addingItem.set(true);
     this.orderService.addOrderItem(+this.id(), {
       productId: pid,
+      colorCode: this.addColorCode().trim() || null,
       quantity: this.addQty(),
       costPrice: this.addCostPrice() || 0,
       unitPrice: this.addPrice()
@@ -460,6 +467,7 @@ export class OrderDetailComponent implements OnInit {
     this.addProductId.set(null);
     this.addProductName.set('');
     this.addProductSearch.set('');
+    this.addColorCode.set('');
     this.addQty.set(1);
     this.addCostPrice.set(0);
     this.addPrice.set(0);

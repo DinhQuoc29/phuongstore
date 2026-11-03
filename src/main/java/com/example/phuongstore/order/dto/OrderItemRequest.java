@@ -11,6 +11,8 @@ public record OrderItemRequest(
     @NotNull(message = "ID sản phẩm không được để trống")
     Long productId,
 
+    String colorCode,
+
     @NotNull(message = "Số lượng không được để trống")
     @Min(value = 1, message = "Số lượng phải ít nhất là 1")
     Integer quantity,

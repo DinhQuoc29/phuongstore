@@ -202,6 +202,9 @@
                               <td>
                                 <div class="alloc-customer">
                                   <span class="alloc-name">{{ alloc.customerName }}</span>
+                                  @if (alloc.colorCode) {
+                                    <span class="alloc-color-badge">{{ alloc.colorCode }}</span>
+                                  }
                                 </div>
                               </td>
                               <td>

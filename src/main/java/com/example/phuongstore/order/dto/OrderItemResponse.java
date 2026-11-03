@@ -8,6 +8,7 @@ public record OrderItemResponse(
     String productCode,
     String productName,
     String productImageUrl,
+    String colorCode,
     Integer quantity,
     Integer pickedQuantity,
     Integer shippedQuantity,

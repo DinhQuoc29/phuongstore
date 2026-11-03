@@ -62,6 +62,7 @@ export interface OrderItem {
   productCode: string;
   productName: string;
   productImageUrl: string | null;
+  colorCode?: string | null;
   quantity: number;
   pickedQuantity: number;
   shippedQuantity: number;
@@ -75,6 +76,7 @@ export interface OrderItem {
 /** Tương ứng OrderItemRequest.java */
 export interface OrderItemRequest {
   productId: number;
+  colorCode?: string | null;
   quantity: number;
   unitPrice: number;
   costPrice?: number;
@@ -167,6 +169,7 @@ export interface UpdatePaymentStatusRequest {
 /** Tương ứng UpdateOrderItemRequest.java */
 export interface UpdateOrderItemRequest {
   productId: number;
+  colorCode?: string | null;
   quantity: number;
   unitPrice: number;
   costPrice?: number;
@@ -182,6 +185,7 @@ export interface PickupAllocationItem {
   customerId: number;
   customerName: string;
   customerPhone: string | null;
+  colorCode?: string | null;
   quantity: number;
   pickedQuantity: number;
 }

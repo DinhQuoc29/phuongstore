@@ -45,6 +45,7 @@ public class PickupService {
                     item.getOrder().getCustomer().getId(),
                     item.getOrder().getCustomer().getFullName(),
                     item.getOrder().getCustomer().getPhoneNumber(),
+                    item.getColorCode(),
                     item.getQuantity(),
                     item.getPickedQuantity()
                 ))

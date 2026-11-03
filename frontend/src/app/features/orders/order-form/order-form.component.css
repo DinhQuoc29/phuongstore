@@ -1009,6 +1009,55 @@
 /* ─── Dual price controls & profit display ─── */
 
 
+
+/* ── Line total row ── */
+.line-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px 2px;
+  margin-top: 10px;
+  border-top: 1px dashed var(--color-border, #e2e8f0);
+}
+
+.line-profit-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.line-profit-title {
+  font-size: 12px;
+  color: var(--color-text-secondary, #475569);
+  font-weight: 500;
+}
+
+.line-profit-num {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.val--green { color: #15803d; }
+.val--amber { color: #b45309; }
+
+.line-total-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.line-total-label {
+  font-size: 12px;
+  color: var(--color-text-secondary, #475569);
+  font-weight: 500;
+}
+
+.line-total-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue-600, #2563eb);
+}
+
 @media (max-width: 640px) {
   
 }
@@ -1052,7 +1101,7 @@
 /* ─── Dual price controls & profit display ─── */
 .line-item__controls--dual-price {
   display: grid;
-  grid-template-columns: 124px minmax(100px, 1fr) minmax(100px, 1fr) minmax(115px, 1.1fr) minmax(105px, 1fr);
+  grid-template-columns: minmax(110px, 1.2fr) 124px minmax(100px, 1fr) minmax(100px, 1fr);
   gap: var(--space-3, 12px);
   align-items: flex-start;
 }

@@ -60,9 +60,12 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", itemReq.productId()));
 
             BigDecimal costPrice = itemReq.costPrice() != null ? itemReq.costPrice() : BigDecimal.ZERO;
+            String colorCode = itemReq.colorCode() != null && !itemReq.colorCode().isBlank() 
+                ? itemReq.colorCode().trim() : null;
 
             OrderItem item = OrderItem.builder()
                 .product(product)
+                .colorCode(colorCode)
                 .quantity(itemReq.quantity())
                 .unitPrice(itemReq.unitPrice())
                 .costPrice(costPrice)
@@ -296,6 +299,8 @@ public class OrderService {
             .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", request.productId()));
 
         item.setProduct(product);
+        item.setColorCode(request.colorCode() != null && !request.colorCode().isBlank() 
+            ? request.colorCode().trim() : null);
         item.setQuantity(request.quantity());
         item.setUnitPrice(request.unitPrice());
         if (request.costPrice() != null) {
@@ -327,9 +332,12 @@ public class OrderService {
             .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", request.productId()));
 
         BigDecimal costPrice = request.costPrice() != null ? request.costPrice() : BigDecimal.ZERO;
+        String colorCode = request.colorCode() != null && !request.colorCode().isBlank() 
+            ? request.colorCode().trim() : null;
 
         OrderItem item = OrderItem.builder()
             .product(product)
+            .colorCode(colorCode)
             .quantity(request.quantity())
             .unitPrice(request.unitPrice())
             .costPrice(costPrice)

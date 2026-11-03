@@ -62,9 +62,7 @@
               @if (o.customerFacebookUrl) {
                 <div class="customer-detail-item">
                   <i class="fa-solid fa-link detail-icon detail-icon--fb"></i>
-                  <a class="detail-val detail-val--fb" [href]="o.customerFacebookUrl" target="_blank" rel="noopener">
-                    Link liên hệ <i class="fb-external-icon"></i>
-                  </a>
+                  <span class="detail-val">{{ o.customerFacebookUrl }}</span>
                 </div>
               }
             </div>
@@ -158,7 +156,11 @@
                   <button class="qty-btn" (click)="addQty.set(addQty() + 1)">+</button>
                 </div>
               </div>
-              <div class="field-group-placeholder"></div>
+              <div class="field-group">
+                <label class="field-label">Mã màu</label>
+                <input class="field-input" type="text" placeholder="VD: 01, Đỏ..."
+                  [ngModel]="addColorCode()" (ngModelChange)="addColorCode.set($event)" />
+              </div>
             </div>
 
             <!-- Hàng 2: Cặp Giá tiền (Giá gốc & Giá bán) -->
@@ -215,7 +217,7 @@
                     @if (item.productCode) {
                       <span class="line-product-code">{{ item.productCode }}</span>
                     }
-                    <span class="line-product-name">{{ item.productName }}</span>
+                    <span class="line-product-name">{{ item.productName }}{{ item.colorCode ? ' ' + item.colorCode : '' }}</span>
                   </div>
                   <div class="item-actions">
                     <button class="icon-btn" (click)="startEdit(item)" title="Chỉnh sửa"
@@ -320,6 +322,14 @@
                         </div>
                       }
                     </div>
+                  </div>
+
+                  <!-- Mã màu -->
+                  <div class="field-group" style="margin-bottom:12px">
+                    <label class="field-label">Mã màu</label>
+                    <input class="field-input" type="text" placeholder="VD: 01, Đỏ..."
+                      [ngModel]="item.editColorCode"
+                      (ngModelChange)="editableItems.update(items => items.map(i => i.id === item.id ? {...i, editColorCode: $event} : i))" />
                   </div>
 
                   <!-- Hàng 1: Cặp số lượng (Đặt & Đã lấy) -->

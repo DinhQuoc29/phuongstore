@@ -30,6 +30,10 @@ public class OrderItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    /** Mã màu / phân loại màu */
+    @Column(name = "color_code", length = 100)
+    private String colorCode;
+
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 

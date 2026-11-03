@@ -12,6 +12,7 @@ import { OrderRequest, OrderItemRequest } from '../../../core/models/order.model
 
 interface LineItem {
   product: Product;
+  colorCode?: string;
   quantity: number;
   costPrice: number;   // Giá gốc (giá vốn)
   unitPrice: number;   // Giá bán
@@ -84,8 +85,7 @@ export class OrderFormComponent implements OnInit {
 
   filteredProducts = computed(() => {
     const kw = this.productSearch().toLowerCase().trim();
-    const selected = new Set(this.lineItems().map(l => l.product.id));
-    const all = this.products().filter(p => !selected.has(p.id));
+    const all = this.products();
     if (!kw) return all.slice(0, 8);
     return all.filter(p =>
       p.productName.toLowerCase().includes(kw) || p.productCode.toLowerCase().includes(kw)
@@ -196,7 +196,7 @@ export class OrderFormComponent implements OnInit {
 
   // ── Product picker actions ─────────────────────────────────────────
   addProduct(p: Product) {
-    this.lineItems.update(items => [...items, { product: p, quantity: 1, costPrice: 0, unitPrice: 0 }]);
+    this.lineItems.update(items => [...items, { product: p, colorCode: '', quantity: 1, costPrice: 0, unitPrice: 0 }]);
     this.productSearch.set('');
     this.showProductDrop.set(false);
     this.formErrors.update(e => { const n = { ...e }; delete n['items']; return n; });
@@ -204,6 +204,10 @@ export class OrderFormComponent implements OnInit {
 
   removeItem(idx: number) {
     this.lineItems.update(items => items.filter((_, i) => i !== idx));
+  }
+
+  updateColorCode(idx: number, val: string) {
+    this.lineItems.update(items => items.map((l, i) => i === idx ? { ...l, colorCode: val } : l));
   }
 
   updateQty(idx: number, val: string | number) {
@@ -275,6 +279,7 @@ export class OrderFormComponent implements OnInit {
       depositAmount: this.depositAmount(),
       items: this.lineItems().map(l => ({
         productId: l.product.id,
+        colorCode: l.colorCode?.trim() || null,
         quantity: l.quantity,
         costPrice: l.costPrice || 0,
         unitPrice: l.unitPrice

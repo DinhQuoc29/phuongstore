@@ -154,7 +154,7 @@
       <!-- Danh sách sản phẩm đã chọn -->
       @if (lineItems().length > 0) {
         <div class="line-items">
-          @for (item of lineItems(); track item.product.id; let idx = $index) {
+          @for (item of lineItems(); track $index; let idx = $index) {
             <div class="line-item">
               <div class="line-item__top">
                 <i class="fa-solid fa-box-open" style="color: #64748b; font-size: 16px; margin-top: 2px;"></i>
@@ -168,6 +168,12 @@
               </div>
 
               <div class="line-item__controls line-item__controls--dual-price">
+                <div class="line-field">
+                  <label class="field-label">Mã màu</label>
+                  <input class="field-input" type="text" placeholder="VD: 01, Đỏ..."
+                    [ngModel]="item.colorCode"
+                    (ngModelChange)="updateColorCode(idx, $event)" />
+                </div>
                 <div class="line-field">
                   <label class="field-label">Số lượng</label>
                   <div class="qty-control">
@@ -193,26 +199,21 @@
                     (ngModelChange)="updatePrice(idx, $event)" />
                 </div>
 
-                <div class="line-field">
-                  <label class="field-label text-right">Thành tiền bán</label>
-                  <div class="line-val-box">
-                    <span class="line-total" [class.line-total--zero]="lineTotal(item) === 0">
-                      {{ formatCurrency(lineTotal(item)) }}
-                    </span>
-                  </div>
-                </div>
+              </div>
 
-                <div class="line-field">
-                  <label class="field-label text-right">Tiền lời</label>
-                  <div class="line-val-box"
-                       [class.line-val-box--profit]="lineProfit(item) > 0"
-                       [class.line-val-box--loss]="lineProfit(item) < 0">
-                    <span class="line-profit"
-                          [class.line-profit--positive]="lineProfit(item) > 0"
-                          [class.line-profit--negative]="lineProfit(item) < 0">
-                      {{ lineProfit(item) >= 0 ? '+' : '' }}{{ formatCurrency(lineProfit(item)) }}
-                    </span>
-                  </div>
+              <!-- Hàng 2: Thanh tóm tắt Thành tiền & Tiền lời -->
+              <div class="line-total-row">
+                <div class="line-profit-box">
+                  <span class="line-profit-title">Tiền lời:</span>
+                  <span class="line-profit-num"
+                        [class.val--green]="lineProfit(item) >= 0"
+                        [class.val--amber]="lineProfit(item) < 0">
+                    {{ lineProfit(item) >= 0 ? '+' : '' }}{{ formatCurrency(lineProfit(item)) }}
+                  </span>
+                </div>
+                <div class="line-total-box">
+                  <span class="line-total-label">Thành tiền bán:</span>
+                  <span class="line-total-val">{{ formatCurrency(lineTotal(item)) }}</span>
                 </div>
               </div>
             </div>

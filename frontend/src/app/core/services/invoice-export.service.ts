@@ -106,7 +106,10 @@ export class InvoiceExportService {
 
     for (const item of items) {
       totalQty += item.quantity;
-      const itemName = (item.productName || 'SẢN PHẨM').toUpperCase();
+      const fullItemName = item.colorCode
+        ? `${item.productName || 'SẢN PHẨM'} ${item.colorCode}`
+        : (item.productName || 'SẢN PHẨM');
+      const itemName = fullItemName.toUpperCase();
 
       // Dòng 1: Tên sản phẩm
       ctx.font = '600 17px "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif';
@@ -172,9 +175,14 @@ export class InvoiceExportService {
     y += 32;
 
     // ─── 5. Footer ───
-    ctx.font = 'bold 18px "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Cảm ơn bạn đã tin tưởng ủng hộ shop ạ ❤️', logicalWidth / 2, y);
+    ctx.font = '600 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    const footerText = 'Cảm ơn bạn đã tin tưởng ủng hộ shop ạ ❤️';
+    // Loại bỏ ký tự ẩn variation selector (\uFE0F) tránh lỗi tính toán canvas trên iOS Safari
+    const cleanFooterText = footerText.replace(/\uFE0F/g, '');
+    const textWidth = ctx.measureText(cleanFooterText).width;
+    const startX = Math.max(paddingX, (logicalWidth - textWidth) / 2);
+    ctx.textAlign = 'left';
+    ctx.fillText(cleanFooterText, startX, y);
 
     return canvas;
   }
@@ -240,7 +248,8 @@ export class InvoiceExportService {
     const items = order.items && order.items.length > 0 ? order.items : [];
     // Tạm tính số dòng của tên sản phẩm
     for (const item of items) {
-      const charCount = (item.productName || '').length;
+      const fullItemName = item.colorCode ? `${item.productName || ''} ${item.colorCode}` : (item.productName || '');
+      const charCount = fullItemName.length;
       const lines = Math.max(1, Math.ceil(charCount / 34));
       height += lines * 24 + 2 + 32;
     }

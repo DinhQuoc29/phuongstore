@@ -6,6 +6,7 @@ public record PickupAllocationItem(
     Long customerId,
     String customerName,
     String customerPhone,
+    String colorCode,
     Integer quantity,
     Integer pickedQuantity
 ) {}

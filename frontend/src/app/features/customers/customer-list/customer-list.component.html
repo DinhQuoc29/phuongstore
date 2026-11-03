@@ -82,11 +82,7 @@
             <!-- Facebook -->
             <td class="col-fb">
               @if (c.facebookUrl) {
-              <a class="fb-link" [href]="c.facebookUrl" target="_blank" rel="noopener noreferrer"
-                title="{{ c.facebookUrl }}">
-                <span class="fb-icon">🔗</span>
-                <span class="fb-name">{{ facebookDisplay(c.facebookUrl) }}</span>
-              </a>
+              <span class="fb-text" [title]="c.facebookUrl">{{ c.facebookUrl }}</span>
               } @else {
               <span class="empty-val">—</span>
               }

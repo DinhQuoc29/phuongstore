@@ -228,6 +228,18 @@ th.col-action {
 }
 
 /* Facebook */
+.fb-text {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 400;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .fb-link {
   display: inline-flex;
   align-items: center;
@@ -761,6 +773,7 @@ th.col-action {
     min-width: 100px;
   }
 
+  .fb-text,
   .fb-link {
     max-width: 120px;
     font-size: 12px;
